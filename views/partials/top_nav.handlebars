@@ -1,0 +1,52 @@
+<nav class="navbar sticky-top">
+    <div class="container-fluid">
+        <div class="left">
+            <a href="/" id="hamburger" class="btn btn-light-outline"><i class="bi bi-cloud"></i></a>
+        </div>
+        <div class="right">
+            <div class="dropdown quick-actions">
+                <button id="quick-action-icon" type="button" data-bs-toggle="modal" data-bs-target="#add-message-modal" class="btn btn-light-outline"><i class="bi bi-plus-lg"></i></button>
+                <button id="quick-action-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-light-outline"><i class="bi bi-list"></i></button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a href="/settings"><i class="bi bi-person-gear icon"></i>Settings</a></li>
+                    <li><a href="/logout" class="logout"><i class="bi bi-box-arrow-right icon"></i>Sign out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="modal fade" id="add-message-modal" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form action="/" method="POST" class="mb-1">
+                    <input id="path" name="path" type="hidden" value="">
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <label for="name" class="form-control-label fw-bold">Name</label>
+                            <input id="name" name="name" type="text" value="" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <label for="body" class="form-control-label fw-bold">Body</label>
+                            <textarea id="body" name="body" class="form-control" required></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input id="active" name="active" type="checkbox" value="1" class="form-check-input">
+                                <label for="active" class="form-check-label fw-bold">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" data-bs-dismiss="modal" class="btn btn-light-alt action-button">Cancel</button>
+                        <button id="add_event" class="btn btn-primary action-button">Add</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

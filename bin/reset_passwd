@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const { Command } = require('commander');
+const bcrypt = require('bcryptjs');
+const users = require('./../models/users');
+
+const program = new Command();
+
+program
+    .version('0.001', '-v, --version', 'print the current version')
+    .option('-e, --email <email>', 'email of the user to reset')
+    .option('-p, --passwd <password>', 'new password')
+    .option('--debug', 'dump the program opts and args then exit', false);
+
+program.parse(process.argv);
+const options = program.opts();
+
+if (!options.email || !options.passwd) {
+    program.help();
+}
+
+let hash = bcrypt.hashSync(options.passwd, 10);
+
+if (options.debug) {
+    console.log('# DEBUG:');
+    console.log('email: %s', options.email);
+    console.log(
+        'passwd and hash match: %s',
+        bcrypt.compareSync(options.passwd, hash),
+    );
+    process.exit(0);
+}
+
+users.update({ email: options.email }, { passwd: hash })
+    .then((ret) => {
+        if (ret) {
+            console.log('password updated');
+            process.exit(0);
+        } else {
+            console.log('password was not updated');
+            process.exit(1);
+        }
+    })
+    .catch((err) => {
+        console.log(`error: ${err}`);
+        process.exit(1);
+    });

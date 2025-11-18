@@ -1,0 +1,49 @@
+{{> header id="home" user=user }}
+{{#template_name}}{{/template_name}}
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        {{> alert }}
+        <div class="box">
+            {{#unless messages}}
+            <div class="row box-row d-flex align-items-center">
+                <div class="col-auto left fw-bold">
+                Nothing yet to display.
+                </div>
+            </div>
+            {{else}}
+            {{#each messages}}
+            <div class="row box-row d-flex align-items-center">
+                <div class="col-auto left fw-bold">
+                    {{this.name}}
+                </div>
+                <div class="col ps-1">
+                    <span class="pills float-start">
+                    {{#if this.active_at}}
+                        <span class="badge">active</span>
+                    {{/if}}
+                    </span>
+                </div>
+                <div class="col-auto ps-1">
+                    <div class="dropdown quick-actions">
+                        <button type="button" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-sm btn-light-alt float-end"><i class="bi bi-caret-down"></i></button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {{#if this.active_at}}
+                            <li><a href="#"><i class="bi bi-eye-slash icon"></i>Set Inactive</a></li>
+                            {{else}}
+                            <li><a href="#"><i class="bi bi-eye icon"></i>Set Active</a></li>
+                            {{/if}}
+                            <li><a href="#"><i class="bi bi-gear icon"></i>Edit</a></li>
+                            <li><a href="#"><i class="bi bi-trash icon"></i>Delete</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="body ellipsis">{{{this.body}}}</div>
+            </div>
+            {{/each}}
+            {{/unless}}
+        </div>
+    </div>
+</div>
+
+{{> footer }}
