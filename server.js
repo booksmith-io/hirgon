@@ -53,8 +53,9 @@ app.set('view engine', 'handlebars');
 app.set('views', path.resolve(__dirname, './views'));
 
 const routes = {
-    home: require('./routes/home'),
     login: require('./routes/login'),
+    home: require('./routes/home'),
+    message: require('./routes/message'),
     settings: require('./routes/settings'),
     logout: require('./routes/logout'),
 };
@@ -98,8 +99,9 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/', routes.home);
 app.use('/login', routes.login);
+app.use('/', routes.home);
+app.use('/message', routes.message);
 app.use('/settings', routes.settings);
 app.use('/logout', routes.logout);
 

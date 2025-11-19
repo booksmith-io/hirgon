@@ -10,7 +10,11 @@
 <script src="/src/jquery-3.7.1/jquery-3.7.1.min.js"></script>
 <link rel="stylesheet" href="/css/main.css">
 <script src="/js/logo.js"></script>
+{{#ifnoteq id 'login'}}
 <script src="/js/modal-utils.js"></script>
+<script src="/js/hirgon-sdk.js"></script>
+<script src="/js/message.js"></script>
+{{/ifnoteq}}
 </head>
 
 <body id="{{id}}">
