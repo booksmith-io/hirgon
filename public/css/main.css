@@ -98,12 +98,12 @@ i.info {
 
 .navbar button:hover,
 .navbar button:active,
-.navbar #hamburger:hover,
-.navbar #hamburger:active {
+.navbar .hamburger:hover,
+.navbar .hamburger:active {
     background-color: #e7e7e7;
 }
 
-.navbar #hamburger,
+.navbar .hamburger,
 .navbar #user-icon {
     padding-right: 0.63rem;
     padding-left: 0.63rem;
@@ -125,10 +125,14 @@ div .quick-actions {
     display: inline;
 }
 
-.navbar #quick-action-icon {
+.navbar .quick-action-icon {
     padding-right: 0.63rem;
     padding-left: 0.63rem;
     margin-right: 0.2rem;
+}
+
+.navbar .hamburger {
+    margin-right: 0;
 }
 
 div .quick-actions .dropdown-menu {
@@ -136,8 +140,8 @@ div .quick-actions .dropdown-menu {
 }
 
 div .quick-actions .dropdown-menu {
-    top: 1.7rem;
-    right: 0.56rem;
+    top: 1.85rem;
+    right: 0.3rem;
     padding-top: 0.8rem;
     padding-bottom: 0.72rem;
 }
