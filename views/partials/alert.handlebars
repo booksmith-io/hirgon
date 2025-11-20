@@ -1,5 +1,3 @@
-{{#if alert}}
-<div class="alert alert-{{alert.type}}" role="alert">
+<div id="alert" role="alert" class="alert {{#if alert}}alert-{{alert.type}}{{else}}d-none{{/if}}">
     {{alert.message}}
 </div>
-{{/if}}

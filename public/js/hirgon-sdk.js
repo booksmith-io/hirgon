@@ -5,6 +5,10 @@ async function addMessage(payload) {
     return await makeAPICall(`/message`, 'post', payload);
 }
 
+async function deleteMessage(message_id) {
+    return await makeAPICall(`/message/${message_id}`, 'delete');
+}
+
 async function makeAPICall(endpoint, method, payload) {
     const requestUri = endpoint;
 

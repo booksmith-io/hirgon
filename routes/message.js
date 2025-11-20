@@ -16,12 +16,36 @@ const model = {
 router.use(body_parser.urlencoded({ extended: true }));
 
 router.get('/:message_id', secure.protected, async (req, res) => {
+    const message_id = req.params.message_id;
+
     let messages = await model.messages.get({ 'message_id': message_id });
     for (let entry of messages) {
         entry['body'] = html.replace_newlines(entry.body);
     }
 
     res.json(messages[0]);
+});
+
+router.delete('/:message_id', async (req, res) => {
+    const message_id = req.params.message_id;
+
+    let messages = await model.messages.get({ 'message_id': message_id });
+    if (!messages) {
+        res.status(response.status.HTTP_NOT_FOUND.code)
+            .json({ "message": response.status.HTTP_NOT_FOUND.string });
+        return;
+    }
+
+    const ret = model.messages.remove({ 'message_id': message_id });
+    if (!ret) {
+        res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code)
+            .json({ "message": response.status.HTTP_INTERNAL_SERVER_ERROR.string });
+        return;
+    }
+
+    res.status(response.status.HTTP_OK.code)
+        .json({ "message": "OK" });
+    return;
 });
 
 router.post('/', async (req, res) => {

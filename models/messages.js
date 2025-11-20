@@ -16,6 +16,13 @@ const create = async (inserts) => {
     return await dbh('messages').insert(inserts);
 };
 
+const remove = async (selector) => {
+    return await dbh('messages')
+        .where(selector)
+        .del();
+};
+
 module.exports.get = get;
 module.exports.update = update;
 module.exports.create = create;
+module.exports.remove = remove;
