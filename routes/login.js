@@ -4,9 +4,12 @@ const express = require('express');
 const router = express.Router();
 const body_parser = require('body-parser');
 const bcrypt = require('bcryptjs');
-const users = require('./../models/users');
 const response = require('./../lib/response');
 const session_util = require('./../lib/session_util');
+
+const model = {
+    users: require('./../models/users'),
+};
 
 router.use(body_parser.urlencoded({ extended: true }));
 
@@ -43,7 +46,7 @@ router.post('/', async (req, res) => {
         });
         return;
     } else {
-        const user = await users.get({ email: req.body.email });
+        const user = await model.users.get({ email: req.body.email });
         if (
             user[0] &&
             bcrypt.compareSync(req.body.password, user[0].passwd)

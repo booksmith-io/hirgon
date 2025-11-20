@@ -15,28 +15,127 @@ $(function() {
 
         let response = await addMessage(payload);
 
-        const form_id = form[0].id;
-        let name_input = document.querySelector(`#${form_id} #name`);
-        let body_input = document.querySelector(`#${form_id} #body`);
-        let active_input = document.querySelector(`#${form_id} #active`);
+        let name_input = document.querySelector('form#add-message-form #name');
+        let body_input = document.querySelector('form#add-message-form #body');
+        let active_input = document.querySelector('form#add-message-form #active');
 
         const add_message_modal = bootstrap.Modal.getInstance('#add-message-modal');
         const error_modal = new bootstrap.Modal('#error-modal', { "backdrop": true });
-        let error_message = document.querySelector(`#error-message`);
+        let error_message = document.querySelector('#error-message');
 
         add_message_modal.hide();
         form[0].reset();
         name_input.value = '';
-        body_input = '';
-        active_input = '';
+        body_input.innerHTML = '';
+        active_input.checked = false;
 
         if ( response[0].ok === true ) {
             location.reload();
+            return;
         }
-        else {
-            error_message.innerHTML = response[1].message;
-            error_modal.show();
+
+        error_message.innerHTML = response[1].message;
+        error_modal.show();
+
+        return;
+    });
+
+    document.querySelectorAll('a.set-message-active').forEach( function(element) {
+        element.addEventListener( 'click', async function(e) {
+            e.preventDefault();
+
+            const action = e.target.dataset.action;
+            const box_row = e.target.closest('div.box-row');
+            const message_id = box_row.dataset.message_id;
+            let alert_div =  document.querySelector('#alert');
+
+            let payload = {};
+            if (action === 'inactive') {
+                payload['active'] = false;
+            }
+            else {
+                payload['active'] = true;
+            }
+
+            let response = await editMessage(message_id, payload);
+            if ( response[0].ok === true ) {
+                location.reload();
+                return;
+            }
+
+            alert_div.innerHTML = 'Unable to set message ' + action;
+            alert_div.classList.add('alert-danger');
+            alert_div.classList.remove('d-none');
+
+            return;
+        });
+    });
+
+    document.querySelectorAll('a.edit-message').forEach( function(element) {
+        element.addEventListener( 'click', async function(e) {
+            const box_row = e.target.closest('div.box-row');
+            const message_id = box_row.dataset.message_id;
+            let alert_div = document.querySelector('#alert');
+
+            let response = await getMessage(message_id);
+            if ( response[0].ok !== true ) {
+                alert_div.innerHTML = 'Unable to get message details';
+                alert_div.classList.add('alert-danger');
+                alert_div.classList.remove('d-none');
+            }
+
+            let input_message_id = document.querySelector('#edit-message-form input#message_id');
+            let input_name = document.querySelector('#edit-message-form input#name');
+            let textarea_body = document.querySelector('#edit-message-form textarea#body');
+            let input_active = document.querySelector('#edit-message-form input#active');
+
+            input_message_id.value = message_id;
+            input_name.value = response[1]['name'];
+            textarea_body.innerHTML = response[1]['body'];
+            if (response[1].active_at) {
+                input_active.checked = true;
+            }
+            else {
+                input_active.checked = false;
+            }
+
+            return;
+        });
+    });
+
+    document.querySelector('#edit-message-modal form#edit-message-form').addEventListener( 'submit', async function(e) {
+        e.preventDefault();
+
+        let form = $(this);
+        const message_id = document.querySelector('form#edit-message-form #message_id').value;
+        let form_inputs = $(this).serializeArray();
+        const edit_message_modal = bootstrap.Modal.getInstance('#edit-message-modal');
+        let alert_div =  document.querySelector('#alert');
+
+        let payload = {};
+        form_inputs.forEach( function(value) {
+            payload[value.name] = value.value;
+        });
+
+        let response = await editMessage(message_id, payload);
+        if ( response[0].ok === true ) {
+            location.reload();
+            return;
         }
+
+        alert_div.innerHTML = 'Unable to update message';
+        alert_div.classList.add('alert-danger');
+        alert_div.classList.remove('d-none');
+
+        let name_input = document.querySelector('form#edit-message-form #name');
+        let body_input = document.querySelector('form#edit-message-form #body');
+        let active_input = document.querySelector('form#edit-message-form #active');
+
+        edit_message_modal.hide();
+        form[0].reset();
+        name_input.value = '';
+        body_input = '';
+        active_input = '';
 
         return;
     });
@@ -52,17 +151,12 @@ $(function() {
             let response = await deleteMessage(message_id);
             if ( response[0].ok === true ) {
                 location.reload();
+                return;
             }
-            else {
-                if (response[1].message) {
-                    alert_div.innerHTML = response[1].message;
-                }
-                else {
-                    alert_div.innerHTML = 'Unable to delete message';
-                }
-                alert_div.classList.add('alert-danger');
-                alert_div.classList.remove('d-none');
-            }
+
+            alert_div.innerHTML = 'Unable to delete message';
+            alert_div.classList.add('alert-danger');
+            alert_div.classList.remove('d-none');
 
             return;
         });

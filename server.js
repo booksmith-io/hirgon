@@ -55,7 +55,9 @@ app.set('views', path.resolve(__dirname, './views'));
 const routes = {
     login: require('./routes/login'),
     home: require('./routes/home'),
-    message: require('./routes/message'),
+    api: {
+        message: require('./routes/api/message'),
+    },
     settings: require('./routes/settings'),
     logout: require('./routes/logout'),
 };
@@ -69,6 +71,9 @@ app.use((req, res, next) => {
     res.locals.path = req.path;
     res.locals.user = req.session.user;
     res.locals.app = config.app;
+    if (req.url.includes('/api/')) {
+        res.locals.api = true;
+    }
     next();
 });
 
@@ -101,7 +106,7 @@ app.use((req, res, next) => {
 
 app.use('/login', routes.login);
 app.use('/', routes.home);
-app.use('/message', routes.message);
+app.use('/api/message', routes.api.message);
 app.use('/settings', routes.settings);
 app.use('/logout', routes.logout);
 

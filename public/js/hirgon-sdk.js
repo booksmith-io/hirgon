@@ -2,11 +2,19 @@
 */
 
 async function addMessage(payload) {
-    return await makeAPICall(`/message`, 'post', payload);
+    return await makeAPICall(`/api/message`, 'post', payload);
+}
+
+async function getMessage(message_id) {
+    return await makeAPICall(`/api/message/${message_id}`, 'get');
+}
+
+async function editMessage(message_id, payload) {
+    return await makeAPICall(`/api/message/${message_id}`, 'post', payload);
 }
 
 async function deleteMessage(message_id) {
-    return await makeAPICall(`/message/${message_id}`, 'delete');
+    return await makeAPICall(`/api/message/${message_id}`, 'delete');
 }
 
 async function makeAPICall(endpoint, method, payload) {
