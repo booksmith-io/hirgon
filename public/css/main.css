@@ -147,7 +147,7 @@ div .quick-actions .dropdown-menu {
 }
 
 div.box .quick-actions .dropdown-menu {
-    --bs-dropdown-min-width: 10rem;
+    --bs-dropdown-min-width: 9.6rem;
 }
 
 div .quick-actions a {
@@ -162,7 +162,7 @@ div .quick-actions a {
 .quick-actions a {
     text-decoration: none;
     color: #2D3B4A;
-    font-size: 1rem;
+    font-size: 0.97rem;
     line-height: 24px;
 }
 
@@ -171,6 +171,13 @@ div .quick-actions a:active,
 div .quick-actions a:focus,
 div .quick-actions a:active:focus {
     color: black;
+}
+
+.quick-actions button.dropdown-toggle {
+    font-size: 0.8rem;
+    color: #646464;
+    padding-right: 0.6rem;
+    padding-left: 0.6rem;
 }
 
 .navbar ul {
@@ -205,6 +212,11 @@ div .quick-actions a:active:focus {
 .navbar p.colophon a {
     padding-left: 0;
     padding-right: 0.35rem;
+}
+
+#error-modal i {
+    text-color: red;
+    font-size: 4rem;
 }
 
 h1 {
