@@ -18,6 +18,10 @@
   },
   "scripts": {
     "start": "node server.js",
-    "development": "NODE_ENV=development nodemon server.js"
+    "development": "NODE_ENV=development nodemon server.js",
+    "setup": "npm install && bash bin/create_database && bash bin/apply_database_patches",
+    "update_deps": "npm install",
+    "upgrade": "git fetch --quiet && git reset --hard origin/main && git pull",
+    "upgrade_database": "bash bin/apply_database_patches"
   }
 }

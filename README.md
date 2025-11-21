@@ -8,14 +8,13 @@
 - npm
 - nodejs
 - sqlite3
-- make
 
 ### install project
 
 ```
 git clone git@github.com:renderorange/hirgon.git
 cd hirgon
-make install
+npm run setup
 cp -a .hirgonrc.example .hirgonrc
 ```
 
@@ -28,9 +27,9 @@ npm run development
 ### update project
 
 ```
-make upgrade
-make update_deps
-make upgrade_database
+npm run upgrade
+npm run update_deps
+npm run upgrade_database
 ```
 
 ## COPYRIGHT AND LICENSE
