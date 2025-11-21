@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS 'messages' (
     updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
-CREATE TRIGGER update_messages_updated_at AFTER UPDATE ON users
+CREATE TRIGGER update_messages_updated_at AFTER UPDATE ON messages
 BEGIN
     UPDATE messages
     SET updated_at = datetime('now', 'localtime')

@@ -59,9 +59,10 @@ router.post('/', async (req, res) => {
             });
             req.session.authenticated = true;
             req.session.user = {
-                user_id: user[0].id,
+                user_id: user[0].user_id,
                 name: user[0].name,
                 email: user[0].email,
+                active: user[0].active,
                 created_at: user[0].created_at,
                 updated_at: user[0].updated_at,
             };
