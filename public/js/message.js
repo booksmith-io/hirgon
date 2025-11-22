@@ -161,4 +161,11 @@ $(function() {
             return;
         });
     });
+
+    document.querySelectorAll('div.toggle_truncate').forEach( function(element) {
+        element.addEventListener( 'click', function(e) {
+            let div_body = e.target;
+            div_body.classList.toggle('ellipsis');
+        });
+    });
 });
