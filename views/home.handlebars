@@ -19,20 +19,20 @@
                 </div>
                 <div class="col ps-1">
                     <span class="pills float-start">
-                    {{#if this.active_at}}
+                    {{#ifeq this.active 'TRUE'}}
                         <span class="badge">active</span>
-                    {{/if}}
+                    {{/ifeq}}
                     </span>
                 </div>
                 <div class="col-auto ps-1">
                     <div class="dropdown quick-actions">
                         <button type="button" title="Actions" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-sm btn-light-alt float-end"><i class="bi bi-three-dots"></i></button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            {{#if this.active_at}}
+                            {{#ifeq this.active 'TRUE'}}
                             <li><a data-action="inactive" href="#" class="set-message-active"><i class="bi bi-eye-slash icon"></i>Set Inactive</a></li>
                             {{else}}
                             <li><a data-action="active" href="#" class="set-message-active"><i class="bi bi-eye icon"></i>Set Active</a></li>
-                            {{/if}}
+                            {{/ifeq}}
                             <li><a href="#" data-bs-toggle="modal" data-bs-target="#edit-message-modal" class="edit-message"><i class="bi bi-gear icon"></i>Edit</a></li>
                             <li><a href="#" class="delete-message"><i class="bi bi-trash icon"></i>Delete</a></li>
                         </ul>

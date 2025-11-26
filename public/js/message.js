@@ -92,7 +92,7 @@ $(function() {
             input_message_id.value = message_id;
             input_name.value = response[1]['name'];
             textarea_body.innerHTML = response[1]['body'];
-            if (response[1].active_at) {
+            if (response[1].active) {
                 input_active.checked = true;
             }
             else {
@@ -127,15 +127,15 @@ $(function() {
         alert_div.classList.add('alert-danger');
         alert_div.classList.remove('d-none');
 
-        let name_input = document.querySelector('form#edit-message-form #name');
-        let body_input = document.querySelector('form#edit-message-form #body');
-        let active_input = document.querySelector('form#edit-message-form #active');
+        let input_name = document.querySelector('form#edit-message-form #name');
+        let input_body = document.querySelector('form#edit-message-form #body');
+        let input_active = document.querySelector('form#edit-message-form #active');
 
         edit_message_modal.hide();
         form[0].reset();
-        name_input.value = '';
-        body_input = '';
-        active_input = '';
+        input_name.value = '';
+        input_body = '';
+        input_active = '';
 
         return;
     });
