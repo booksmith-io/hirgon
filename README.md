@@ -8,6 +8,7 @@
 - npm
 - nodejs
 - sqlite3
+- make
 
 ### install project
 
