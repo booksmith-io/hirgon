@@ -29,6 +29,7 @@ router.get('/', (req, res) => {
             'login',
             {
                 layout: false,
+                icon: res.locals.systemdata['settings:icon'],
                 alert: session_util.get_alert(req),
             },
         );
@@ -39,6 +40,7 @@ router.post('/', async (req, res) => {
     if (!req.body || !req.body.email || !req.body.password) {
         res.status(response.status.HTTP_UNAUTHORIZED.code).render('login', {
             layout: false,
+            icon: res.locals.systemdata['settings:icon'],
             alert: {
                 type: 'danger',
                 message: 'The email and password parameters are required',
@@ -71,6 +73,7 @@ router.post('/', async (req, res) => {
             session_util.empty_session(req);
             res.status(response.status.HTTP_UNAUTHORIZED.code).render('login', {
                 layout: false,
+                icon: res.locals.systemdata['settings:icon'],
                 alert: {
                     type: 'danger',
                     message: 'The email and password parameters are required',

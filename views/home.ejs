@@ -1,49 +1,48 @@
-{{> header id="home" user=user }}
-{{#template_name}}{{/template_name}}
+<%- include('includes/header', {id: 'home', user: user}) %>
 
 <div class="row justify-content-center">
     <div class="col-12">
-        {{> alert }}
+        <%- include('includes/alert') %>
         <div class="box">
-            {{#unless messages}}
+            <% if (typeof messages === 'undefined') { %>
             <div class="row box-row d-flex align-items-center">
                 <div class="col-auto left fw-bold">
                 Nothing yet to display.
                 </div>
             </div>
-            {{else}}
-            {{#each messages}}
-            <div data-message_id={{this.message_id}} class="row box-row d-flex align-items-center">
+            <% } else { %>
+            <% messages.forEach(function(message){ %>
+            <div data-message_id=<%= message.message_id %> class="row box-row d-flex align-items-center">
                 <div class="col-auto left fw-bold">
-                    {{this.name}}
+                    <%= message.name %>
                 </div>
                 <div class="col ps-1">
                     <span class="pills float-start">
-                    {{#ifeq this.active 'TRUE'}}
+                    <% if (message.active === 1) { %>
                         <span class="badge">active</span>
-                    {{/ifeq}}
+                    <% } %>
                     </span>
                 </div>
                 <div class="col-auto ps-1">
                     <div class="dropdown quick-actions">
                         <button type="button" title="Actions" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-sm btn-light-alt float-end"><i class="bi bi-three-dots"></i></button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            {{#ifeq this.active 'TRUE'}}
+                            <% if (message.active === 1) { %>
                             <li><a data-action="inactive" href="#" class="set-message-active"><i class="bi bi-eye-slash icon"></i>Set Inactive</a></li>
-                            {{else}}
+                            <% } else { %>
                             <li><a data-action="active" href="#" class="set-message-active"><i class="bi bi-eye icon"></i>Set Active</a></li>
-                            {{/ifeq}}
-                            <li><a href="#" data-bs-toggle="modal" data-bs-target="#edit-message-modal" class="edit-message"><i class="bi bi-gear icon"></i>Edit</a></li>
+                            <% } %>
+                            <li><a href="#" class="edit-message"><i class="bi bi-gear icon"></i>Edit</a></li>
                             <li><a href="#" class="delete-message"><i class="bi bi-trash icon"></i>Delete</a></li>
                         </ul>
                     </div>
                 </div>
-                <div class="body toggle_truncate ellipsis">{{{this.body}}}</div>
+                <div class="body toggle_truncate ellipsis"><%- message.body %></div>
             </div>
-            {{/each}}
-            {{/unless}}
+            <% }); %>
+            <% } %>
         </div>
     </div>
 </div>
 
-{{> footer }}
+<%- include('includes/footer') %>

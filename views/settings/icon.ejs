@@ -1,0 +1,35 @@
+<%- include('../includes/header', {id: 'home', user: user}) %>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <%- include('../includes/alert') %>
+        <%- include('../includes/settings/top') %>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12 col-md-3">
+        <%- include('../includes/settings/nav') %>
+    </div>
+    <div class="col-sm-12 col-md-9">
+        <div class="row heading">
+            <h3>Icon</h3>
+        </div>
+        <form action="/settings/icon" method="POST" class="mb-4">
+            <div class="row mb-2">
+                <div class="col-12">
+                    <% icons.forEach(function(icon){ %>
+                    <div class="icon-selection">
+                        <i class="bi bi-<%= icon %> icon settings-icon"></i>
+                        <input id="<%= icon %>-icon" type="radio" name="icon" value="<%= icon %>" aria-label="<%= icon %> icon" class="form-check-input" <% if (icon === checked) { %>checked<% } %>>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+            <div class="button-group">
+                <input type="submit" value="Update" class="btn btn-primary">
+            </div>
+        </form>
+    </div>
+</div>
+
+<%- include('../includes/footer') %>

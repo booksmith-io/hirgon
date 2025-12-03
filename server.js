@@ -5,7 +5,6 @@
 const version = '0.001';
 
 const express = require('express');
-const handlebars = require('express-handlebars');
 const session = require('express-session');
 const path = require('path');
 const logger = require('morgan');
@@ -14,42 +13,13 @@ const response = require('./lib/response');
 const session_util = require('./lib/session_util');
 
 const app = express();
-const hbs = handlebars.create({
-    helpers: {
-        logger: (message, options) => {
-            console.log(message);
-        },
-        // display the view that's being rendered if
-        // running in the development env
-        template_name: (options) => {
-            if (process.env.NODE_ENV === 'development') {
-                return `<!-- view: ${options.data.exphbs.view} -->`;
-            }
-        },
-        // test for equals
-        ifeq: (a, b, options) => {
-            if (a === b) {
-                return options.fn(this);
-            }
-            return options.inverse(this);
-        },
-        // test for not equals
-        ifnoteq: (a, b, options) => {
-            if (a !== b) {
-                return options.fn(this);
-            }
-            return options.inverse(this);
-        },
-    },
-});
 
 app.use(session(session_util.build_config(session, config)));
 
 app.disable('etag');
 app.disable('x-powered-by');
 
-app.engine('handlebars', hbs.engine);
-app.set('view engine', 'handlebars');
+app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, './views'));
 
 const routes = {
@@ -62,18 +32,24 @@ const routes = {
     logout: require('./routes/logout'),
 };
 
+const model = {
+    systemdata: require('./models/systemdata'),
+};
+
 app.use(logger('combined'));
 app.use(express.static('public'));
 
 // add some request variables as local response variables so they
 // can be used in the templates.
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     res.locals.path = req.path;
     res.locals.user = req.session.user;
     res.locals.app = config.app;
     if (req.url.includes('/api/')) {
         res.locals.api = true;
     }
+    const systemdata = await model.systemdata.get_format_systemdata();
+    res.locals.systemdata = systemdata;
     next();
 });
 

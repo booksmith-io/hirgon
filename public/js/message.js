@@ -51,10 +51,10 @@ $(function() {
 
             let payload = {};
             if (action === 'inactive') {
-                payload['active'] = false;
+                payload['active'] = 0;
             }
             else {
-                payload['active'] = true;
+                payload['active'] = 1;
             }
 
             let response = await editMessage(message_id, payload);
@@ -73,15 +73,20 @@ $(function() {
 
     document.querySelectorAll('a.edit-message').forEach( function(element) {
         element.addEventListener( 'click', async function(e) {
+            e.preventDefault();
+
             const box_row = e.target.closest('div.box-row');
             const message_id = box_row.dataset.message_id;
             let alert_div = document.querySelector('#alert');
 
             let response = await getMessage(message_id);
+
             if ( response[0].ok !== true ) {
                 alert_div.innerHTML = 'Unable to get message details';
                 alert_div.classList.add('alert-danger');
                 alert_div.classList.remove('d-none');
+
+                return false;
             }
 
             let input_message_id = document.querySelector('#edit-message-form input#message_id');
@@ -98,6 +103,9 @@ $(function() {
             else {
                 input_active.checked = false;
             }
+
+            const edit_message_modal = new bootstrap.Modal('#edit-message-modal', { "backdrop": true });
+            edit_message_modal.show();
 
             return;
         });

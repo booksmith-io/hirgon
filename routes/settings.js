@@ -9,6 +9,7 @@ const response = require('./../lib/response');
 
 const model = {
     users: require('./../models/users'),
+    systemdata: require('./../models/systemdata'),
 };
 
 router.use(body_parser.urlencoded({ extended: true }));
@@ -151,6 +152,92 @@ router.post('/password', secure.protected, async (req, res) => {
         alert: {
             type: 'info',
             message: 'Password updated',
+        },
+    });
+    return;
+});
+
+router.get('/icon', secure.protected, async (req, res) => {
+    const icons = require('./../lib/icons');
+
+    const icon = await model.systemdata.get({ 'key': 'settings:icon' });
+    if (!icon[0]) {
+        res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/icon', {
+            layout: false,
+            icons: icons.icons,
+            alert: {
+                type: 'danger',
+                message: 'Icon was not found',
+            },
+        });
+        return;
+    }
+
+    res.render('settings/icon', {
+        layout: false,
+        checked: icon[0].value,
+        icons: icons.icons,
+    });
+});
+
+router.post('/icon', secure.protected, async (req, res) => {
+    const icons = require('./../lib/icons');
+
+    const icon = await model.systemdata.get({ 'key': 'settings:icon' });
+    if (!icon[0]) {
+        res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/icon', {
+            layout: false,
+            icons: icons.icons,
+            alert: {
+                type: 'danger',
+                message: 'Icon was not found',
+            },
+        });
+        return;
+    }
+
+    if (!req.body || !req.body.icon) {
+        res.status(response.status.HTTP_BAD_REQUEST.code).render('settings/icon', {
+            layout: false,
+            checked: icon[0].value,
+            icons: icons.icons,
+            alert: {
+                type: 'danger',
+                message: 'Icon is required',
+            },
+        });
+        return;
+    }
+
+    let updates = {
+        value: req.body.icon
+    };
+
+    const ret = await model.systemdata.update({ 'key': 'settings:icon' }, updates);
+    if (!ret) {
+        res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/icon', {
+            layout: false,
+            checked: icon[0].value,
+            icons: icons.icons,
+            alert: {
+                type: 'danger',
+                message: 'Unable to update icon',
+            },
+        });
+        return;
+    }
+
+    // update res.locals with the change so it can be used within the templates
+    const systemdata = await model.systemdata.get_format_systemdata({});
+    res.locals.systemdata = systemdata;
+
+    res.render('settings/icon', {
+        layout: false,
+        checked: req.body.icon,
+        icons: icons.icons,
+        alert: {
+            type: 'info',
+            message: 'Icon updated',
         },
     });
     return;

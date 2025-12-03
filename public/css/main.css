@@ -46,6 +46,10 @@ i.info {
 .rainbow {
 }
 
+#login #logo-div {
+    margin-bottom: 0.35rem;
+}
+
 #login .logo {
     font-size: 4rem;
     line-height: 4.5rem;
@@ -197,6 +201,23 @@ div .quick-actions a:active:focus {
 i.icon {
     padding-right: 0.5rem;
     font-size: 0.9rem;
+}
+
+div.icon-selection {
+    display: inline flow-root;
+    width: 4rem;
+    padding: 0.6rem;
+}
+
+div.icon-selection .form-check-input {
+    margin-top: 0.5rem;
+    margin-left: 0.75rem;
+}
+
+i.icon.settings-icon {
+    display: block;
+    font-size: 2.5rem;
+    line-height: 3rem;
 }
 
 #settings .content {

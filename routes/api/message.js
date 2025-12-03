@@ -47,11 +47,11 @@ router.post('/:message_id', secure.protected, async (req, res) => {
     if (req.body.body && messages[0].body !== req.body.body) {
         updates['body'] = req.body.body;
     }
-    if (messages[0].active === 'FALSE' && req.body.active === 'true') {
-        updates['active'] = 'TRUE';
+    if (messages[0].active === 0 && req.body.active === '1') {
+        updates['active'] = 1;
     }
-    if (messages[0].active === 'TRUE' && (!req.body.active || req.body.active === 'false')) {
-        updates['active'] = 'FALSE';
+    if (messages[0].active === 1 && (!req.body.active || req.body.active === '0')) {
+        updates['active'] = 0;
     }
 
     if (Object.keys(updates).length === 0) {
@@ -107,7 +107,7 @@ router.post('/', secure.protected, async (req, res) => {
     };
 
     if (req.body.active) {
-        inserts['active'] = 'TRUE';
+        inserts['active'] = 1;
     }
 
     const ret = model.messages.create(inserts);
