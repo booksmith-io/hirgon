@@ -19,7 +19,7 @@
                 <div class="col-12">
                     <% icons.forEach(function(icon){ %>
                     <div class="icon-selection">
-                        <i class="bi bi-<%= icon %> icon settings-icon"></i>
+                        <i title="<%= icon %>" class="bi bi-<%= icon %> icon settings-icon"></i>
                         <input id="<%= icon %>-icon" type="radio" name="icon" value="<%= icon %>" aria-label="<%= icon %> icon" class="form-check-input" <% if (icon === checked) { %>checked<% } %>>
                     </div>
                     <% }); %>
