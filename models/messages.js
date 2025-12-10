@@ -5,7 +5,9 @@ const dbh = require('./../lib/dbh');
 const get = async (selector) => {
     return await dbh('messages')
         .where(selector)
-        .select('message_id', 'name', 'body', 'active', 'active_at', 'created_at', 'updated_at');
+        .select('message_id', 'name', 'body', 'active', 'active_at', 'created_at', 'updated_at')
+        .orderBy('active_at', 'desc')
+        .orderBy('updated_at', 'desc')
 };
 
 const update = async (selector, updates) => {
