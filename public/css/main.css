@@ -381,7 +381,10 @@ textarea.form-control {
 }
 
 @media (max-width: 991px) {
+    .box {
+        margin-top: 0rem;
+    }
     .navbar {
-        margin-bottom: 0;
+        margin-bottom: 0.85rem;
     }
 }
