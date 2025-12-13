@@ -1,14 +1,14 @@
-<%- include('../includes/header', {id: 'home', user: user}) %>
+<%- include('../includes/header', {id: 'settings', user: user}) _%>
 
 <div class="row justify-content-center">
     <div class="col-12">
-        <%- include('../includes/alert') %>
-        <%- include('../includes/settings/top') %>
+        <%- include('../includes/alert') _%>
+        <%- include('../includes/settings/top') _%>
     </div>
 </div>
 <div class="row">
     <div class="col-sm-12 col-md-3">
-        <%- include('../includes/settings/nav') %>
+        <%- include('../includes/settings/nav') _%>
     </div>
     <div class="col-sm-12 col-md-9">
         <div class="row heading">
@@ -17,19 +17,19 @@
         <form action="/settings/icon" method="POST" class="mb-4">
             <div class="row mb-2">
                 <div class="col-12">
-                    <% icons.forEach(function(icon){ %>
+                    <%_ icons.forEach(function(icon){ _%>
                     <div class="icon-selection">
                         <i title="<%= icon %>" class="bi bi-<%= icon %> icon settings-icon"></i>
                         <input id="<%= icon %>-icon" type="radio" name="icon" value="<%= icon %>" aria-label="<%= icon %> icon" class="form-check-input" <% if (icon === checked) { %>checked<% } %>>
                     </div>
-                    <% }); %>
+                    <%_ }); _%>
                 </div>
             </div>
             <div class="button-group">
-                <input type="submit" value="Update" class="btn btn-primary">
+                <input type="submit" value="Update" class="btn btn-primary action-button">
             </div>
         </form>
     </div>
 </div>
 
-<%- include('../includes/footer') %>
+<%- include('../includes/footer') _%>
