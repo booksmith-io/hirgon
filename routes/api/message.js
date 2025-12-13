@@ -18,7 +18,8 @@ router.use(body_parser.urlencoded({ extended: true }));
 router.get('/:message_id', secure.protected, async (req, res) => {
     const message_id = req.params.message_id;
 
-    let messages = await model.messages.get({ 'message_id': message_id });
+    const messages_obj = new model.messages.Messages();
+    let messages = await messages_obj.get({ 'message_id': message_id });
     if (!messages) {
         res.status(response.status.HTTP_NOT_FOUND.code)
             .json({ "message": response.status.HTTP_NOT_FOUND.string });
@@ -31,7 +32,8 @@ router.get('/:message_id', secure.protected, async (req, res) => {
 router.post('/:message_id', secure.protected, async (req, res) => {
     const message_id = req.params.message_id;
 
-    const messages = await model.messages.get({ 'message_id': message_id });
+    const messages_obj = new model.messages.Messages();
+    const messages = await messages_obj.get({ 'message_id': message_id });
     if (!messages) {
         res.status(response.status.HTTP_NOT_FOUND.code)
             .json({ "message": response.status.HTTP_NOT_FOUND.string });
@@ -60,7 +62,7 @@ router.post('/:message_id', secure.protected, async (req, res) => {
         return;
     }
 
-    const ret = model.messages.update({ 'message_id': message_id }, updates);
+    const ret = messages_obj.update({ 'message_id': message_id }, updates);
     if (!ret) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code)
             .json({ "message": response.status.HTTP_INTERNAL_SERVER_ERROR.string });
@@ -75,14 +77,15 @@ router.post('/:message_id', secure.protected, async (req, res) => {
 router.delete('/:message_id', secure.protected, async (req, res) => {
     const message_id = req.params.message_id;
 
-    let messages = await model.messages.get({ 'message_id': message_id });
+    const messages_obj = new model.messages.Messages();
+    let messages = await messages_obj.get({ 'message_id': message_id });
     if (!messages) {
         res.status(response.status.HTTP_NOT_FOUND.code)
             .json({ "message": response.status.HTTP_NOT_FOUND.string });
         return;
     }
 
-    const ret = model.messages.remove({ 'message_id': message_id });
+    const ret = messages_obj.remove({ 'message_id': message_id });
     if (!ret) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code)
             .json({ "message": response.status.HTTP_INTERNAL_SERVER_ERROR.string });
@@ -110,7 +113,8 @@ router.post('/', secure.protected, async (req, res) => {
         inserts['active'] = 1;
     }
 
-    const ret = model.messages.create(inserts);
+    const messages_obj = new model.messages.Messages();
+    const ret = messages_obj.create(inserts);
     if (!ret) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code)
             .json({ "message": response.status.HTTP_INTERNAL_SERVER_ERROR.string });

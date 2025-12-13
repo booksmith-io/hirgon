@@ -1,30 +1,37 @@
-// messages db methods
+// messages model
 
-const dbh = require('./../lib/dbh');
+const base = require('./base');
 
-const get = async (selector) => {
-    return await dbh('messages')
-        .where(selector)
-        .select('message_id', 'name', 'body', 'active', 'active_at', 'created_at', 'updated_at')
-        .orderBy('active_at', 'desc')
-        .orderBy('updated_at', 'desc')
-};
+class Messages extends base.Base {
+    constructor() {
+        super();
+    }
 
-const update = async (selector, updates) => {
-    return await dbh('messages').where(selector).update(updates);
-};
+    // rather than calling super.get like we do in the users model
+    // we're just calling super.dbh so we can also run orderBy.
+    async get (selector) {
+        return await this.dbh('messages')
+            .where(selector)
+            .select(
+                [
+                    'message_id',
+                    'name',
+                    'body',
+                    'active',
+                    'active_at',
+                    'created_at',
+                    'updated_at',
+                ],
+            )
+            .orderBy('active_at', 'desc')
+            .orderBy('updated_at', 'desc');
+    };
 
-const create = async (inserts) => {
-    return await dbh('messages').insert(inserts);
-};
+    async remove (selector) {
+        return await this.dbh('messages')
+            .where(selector)
+            .del();
+    };
+}
 
-const remove = async (selector) => {
-    return await dbh('messages')
-        .where(selector)
-        .del();
-};
-
-module.exports.get = get;
-module.exports.update = update;
-module.exports.create = create;
-module.exports.remove = remove;
+module.exports.Messages = Messages;

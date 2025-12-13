@@ -48,7 +48,8 @@ router.post('/', async (req, res) => {
         });
         return;
     } else {
-        const user = await model.users.get({ email: req.body.email });
+        let users_obj = new model.users.Users();
+        const user = await users_obj.get({ email: req.body.email });
         if (
             user[0] &&
             bcrypt.compareSync(req.body.password, user[0].passwd)

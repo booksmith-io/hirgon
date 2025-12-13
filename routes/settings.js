@@ -36,12 +36,14 @@ router.post('/profile', secure.protected, async (req, res) => {
         return;
     }
 
+    let users_obj = new model.users.Users();
+
     let updates = {
         name: req.body.name,
         email: req.body.email,
     };
 
-    const ret = await model.users.update({ 'user_id': res.locals.user.user_id }, updates);
+    const ret = await users_obj.update({ 'user_id': res.locals.user.user_id }, updates);
     if (!ret) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/profile', {
             layout: false,
@@ -55,7 +57,7 @@ router.post('/profile', secure.protected, async (req, res) => {
 
     // anytime a user is updated, we need to update that user information in session and req.local
     // since they're used in other places within the software.
-    const users = await model.users.get({ 'user_id': res.locals.user.user_id });
+    const users = await users_obj.get({ 'user_id': res.locals.user.user_id });
     req.session.user = {
         user_id: users[0].user_id,
         name: users[0].name,
@@ -94,8 +96,10 @@ router.post('/password', secure.protected, async (req, res) => {
         return;
     }
 
+    let users_obj = new model.users.Users();
+
     // check the old password
-    let users = await model.users.get({ 'user_id': res.locals.user.user_id });
+    let users = await users_obj.get({ 'user_id': res.locals.user.user_id });
     if (!bcrypt.compareSync(req.body.old_password, users[0].passwd)) {
         res.status(response.status.HTTP_UNAUTHORIZED.code).render('settings/password', {
             layout: false,
@@ -122,7 +126,7 @@ router.post('/password', secure.protected, async (req, res) => {
     }
 
     // now that we've verified the passwords, update the password in the database
-    let ret = await model.users.update({ 'user_id': res.locals.user.user_id }, { passwd: new_passwd_hash });
+    let ret = await users_obj.update({ 'user_id': res.locals.user.user_id }, { passwd: new_passwd_hash });
     if (!ret) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/password', {
             layout: false,
@@ -136,7 +140,7 @@ router.post('/password', secure.protected, async (req, res) => {
 
     // anytime a user is updated, we need to update that user information in session and req.local
     // since they're used in other places within the software.
-    users = await model.users.get({ 'user_id': res.locals.user.user_id });
+    users = await users_obj.get({ 'user_id': res.locals.user.user_id });
     req.session.user = {
         user_id: users[0].user_id,
         name: users[0].name,
@@ -160,7 +164,8 @@ router.post('/password', secure.protected, async (req, res) => {
 router.get('/icon', secure.protected, async (req, res) => {
     const icons = require('./../lib/icons');
 
-    const icon = await model.systemdata.get({ 'key': 'settings:icon' });
+    const systemdata_obj = new model.systemdata.Systemdata();
+    const icon = await systemdata_obj.get({ 'key': 'settings:icon' });
     if (!icon[0]) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/icon', {
             layout: false,
@@ -183,7 +188,8 @@ router.get('/icon', secure.protected, async (req, res) => {
 router.post('/icon', secure.protected, async (req, res) => {
     const icons = require('./../lib/icons');
 
-    const icon = await model.systemdata.get({ 'key': 'settings:icon' });
+    const systemdata_obj = new model.systemdata.Systemdata();
+    const icon = await systemdata_obj.get({ 'key': 'settings:icon' });
     if (!icon[0]) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/icon', {
             layout: false,
@@ -213,7 +219,7 @@ router.post('/icon', secure.protected, async (req, res) => {
         value: req.body.icon
     };
 
-    const ret = await model.systemdata.update({ 'key': 'settings:icon' }, updates);
+    const ret = await systemdata_obj.update({ 'key': 'settings:icon' }, updates);
     if (!ret) {
         res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code).render('settings/icon', {
             layout: false,
@@ -228,7 +234,7 @@ router.post('/icon', secure.protected, async (req, res) => {
     }
 
     // update res.locals with the change so it can be used within the templates
-    const systemdata = await model.systemdata.get_format_systemdata({});
+    const systemdata = await systemdata_obj.get_format_systemdata({});
     res.locals.systemdata = systemdata;
 
     res.render('settings/icon', {

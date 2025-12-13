@@ -15,7 +15,8 @@ const model = {
 router.use(body_parser.urlencoded({ extended: true }));
 
 router.get('/', secure.protected, async (req, res) => {
-    let messages = await model.messages.get({});
+    const messages_obj = new model.messages.Messages();
+    let messages = await messages_obj.get({});
     for (let entry of messages) {
         entry['body'] = html.replace_newlines(entry.body);
     }

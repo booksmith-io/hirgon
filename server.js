@@ -48,7 +48,9 @@ app.use(async (req, res, next) => {
     if (req.url.includes('/api/')) {
         res.locals.api = true;
     }
-    const systemdata = await model.systemdata.get_format_systemdata();
+
+    const systemdata_obj = new model.systemdata.Systemdata();
+    const systemdata = await systemdata_obj.get_format_systemdata();
     res.locals.systemdata = systemdata;
     next();
 });

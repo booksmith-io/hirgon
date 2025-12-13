@@ -1,40 +1,41 @@
-// systemdata db methods
+// systemdata model
 
-const dbh = require('./../lib/dbh');
+const base = require('./base');
 
-const get = async (selector) => {
-    return await dbh('systemdata')
-        .where(selector)
-        .select('key', 'value', 'data', 'created_at', 'updated_at');
-};
-
-const update = async (selector, updates) => {
-    return await dbh('systemdata').where(selector).update(updates);
-};
-
-const create = async (inserts) => {
-    return await dbh('systemdata').insert(inserts);
-};
-
-const remove = async (selector) => {
-    return await dbh('systemdata')
-        .where(selector)
-        .del();
-};
-
-const get_format_systemdata = async (req) => {
-    const res = await get({});
-    let systemdata = {};
-    for (row of res) {
-        const key = row['key'];
-        delete row['key'];
-        systemdata[key] = row;
+class Systemdata extends base.Base {
+    constructor() {
+        super();
     }
-    return systemdata;
-};
 
-module.exports.get = get;
-module.exports.update = update;
-module.exports.create = create;
-module.exports.remove = remove;
-module.exports.get_format_systemdata = get_format_systemdata;
+    async get (selector) {
+        return await super.get(
+            [
+                'key',
+                'value',
+                'data',
+                'created_at',
+                'updated_at',
+            ],
+            selector,
+        );
+    };
+
+    async remove (selector) {
+        return await this.dbh('systemdata')
+            .where(selector)
+            .del();
+    };
+
+    async get_format_systemdata () {
+        const res = await super.get('*', {});
+        let systemdata = {};
+        for (let row of res) {
+            const key = row['key'];
+            delete row['key'];
+            systemdata[key] = row;
+        }
+        return systemdata;
+    };
+}
+
+module.exports.Systemdata = Systemdata;
