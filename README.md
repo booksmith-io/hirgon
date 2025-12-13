@@ -1,3 +1,5 @@
+![hirgon](hirgon.jpeg)
+
 # hirgon
 
 ## INSTALLATION
