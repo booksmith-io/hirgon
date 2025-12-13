@@ -16,7 +16,14 @@ $(function() {
         'rgba(255, 0, 0, 1)',
     ];
 
-    const random_index = Math.floor(Math.random() * color_list.length);
+    // TODO: if systemdata has enabled random color, do random
+    // else just do green.
+    let random_index;
+    if (true) {
+        random_index = 2;
+    } else {
+        random_index = Math.floor(Math.random() * color_list.length);
+    }
     const random_color = color_list[random_index];
 
     let style = document.createElement('style');
