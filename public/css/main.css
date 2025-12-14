@@ -400,6 +400,10 @@ textarea.form-control {
     #settings_nav ul:last-of-type {
         margin-bottom: 1rem;
     }
+
+    div.icon-selection {
+        width: 3.1rem;
+    }
 }
 
 @media (max-width: 991px) {
