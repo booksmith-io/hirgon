@@ -1,37 +1,36 @@
-<%- include('includes/header', {id: 'home', user: user}) %>
-
+<%- include('includes/header', {id: 'home', user: user}) _%>
 <div class="row justify-content-center">
     <div class="col-12">
-        <%- include('includes/alert') %>
+        <%- include('includes/alert') _%>
         <div class="box">
-            <% if (typeof messages === 'undefined') { %>
+            <%_ if (typeof messages === 'undefined') { _%>
             <div class="row box-row d-flex align-items-center">
                 <div class="col-auto left fw-bold">
                 Nothing yet to display.
                 </div>
             </div>
-            <% } else { %>
-            <% messages.forEach(function(message){ %>
+            <%_ } else { _%>
+            <%_ messages.forEach(function(message){ _%>
             <div data-message_id=<%= message.message_id %> class="row box-row d-flex align-items-center">
                 <div class="col-auto left fw-bold">
                     <%= message.name %>
                 </div>
                 <div class="col ps-1">
                     <span class="pills float-start">
-                    <% if (message.active === 1) { %>
+                    <%_ if (message.active === 1) { _%>
                         <span class="badge">active</span>
-                    <% } %>
+                    <%_ } _%>
                     </span>
                 </div>
                 <div class="col-auto ps-1">
                     <div class="dropdown quick-actions">
                         <button type="button" title="Actions" data-bs-toggle="dropdown" aria-expanded="false" class="btn btn-sm btn-light-alt float-end"><i class="bi bi-three-dots"></i></button>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <% if (message.active === 1) { %>
+                            <%_ if (message.active === 1) { _%>
                             <li><a data-action="inactive" href="#" class="set-message-active"><i class="bi bi-eye-slash icon"></i>Set Inactive</a></li>
-                            <% } else { %>
+                            <%_ } else { _%>
                             <li><a data-action="active" href="#" class="set-message-active"><i class="bi bi-eye icon"></i>Set Active</a></li>
-                            <% } %>
+                            <%_ } _%>
                             <li><a href="#" class="edit-message"><i class="bi bi-gear icon"></i>Edit</a></li>
                             <li><a href="#" class="delete-message"><i class="bi bi-trash icon"></i>Delete</a></li>
                         </ul>
@@ -39,10 +38,9 @@
                 </div>
                 <div class="body toggle_truncate ellipsis"><%- message.body %></div>
             </div>
-            <% }); %>
-            <% } %>
+            <%_ }); _%>
+            <%_ } _%>
         </div>
     </div>
 </div>
-
-<%- include('includes/footer') %>
+<%- include('includes/footer') _%>

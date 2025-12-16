@@ -10,14 +10,14 @@
 <script src="/src/jquery-3.7.1/jquery-3.7.1.min.js"></script>
 <link rel="stylesheet" href="/css/main.css">
 <script src="/js/logo.js"></script>
-<% if (id !== 'login') { %>
+<% if (id !== 'login') { _%>
 <script src="/js/modal-utils.js"></script>
 <script src="/js/hirgon-sdk.js"></script>
 <script src="/js/message.js"></script>
-<% } %>
+<% } _%>
 </head>
 <body id="<%= id %>">
-<% if (id !== 'login') { %>
-<%- include('top_nav') %>
-<% } %>
+<% if (id !== 'login') { _%>
+<%- include('top_nav') _%>
+<% } _%>
 <div class="content container-lg vh-100">
