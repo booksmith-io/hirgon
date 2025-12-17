@@ -41,19 +41,38 @@ router.post('/:message_id', secure.protected, async (req, res) => {
     }
 
     let updates = {};
+    let is_active = messages[0].active;
 
     // only update the message columns that have changed
     if (req.body.name && messages[0].name !== req.body.name) {
         updates['name'] = req.body.name;
     }
+
     if (req.body.body && messages[0].body !== req.body.body) {
         updates['body'] = req.body.body;
     }
+
     if (messages[0].active === 0 && req.body.active === '1') {
         updates['active'] = 1;
     }
+
     if (messages[0].active === 1 && (!req.body.active || req.body.active === '0')) {
         updates['active'] = 0;
+        is_active = 0;
+    }
+
+    let scheduled_at;
+    if (req.body.schedule_date && req.body.schedule_time) {
+        scheduled_at = `${req.body.schedule_date} ${req.body.schedule_time}`;
+        if (await datetime.datetime_is_future(scheduled_at) === 0) {
+            res.status(response.status.HTTP_BAD_REQUEST.code)
+                .json({ "message": "scheduled_at must be in the future" });
+            return;
+        }
+    }
+
+    if (is_active === 0 && scheduled_at && messages[0].scheduled_at !== scheduled_at) {
+        updates['scheduled_at'] = scheduled_at;
     }
 
     if (Object.keys(updates).length === 0) {
@@ -111,6 +130,20 @@ router.post('/', secure.protected, async (req, res) => {
 
     if (req.body.active) {
         inserts['active'] = 1;
+    }
+
+    let scheduled_at;
+    if (req.body.schedule_date && req.body.schedule_time) {
+        scheduled_at = `${req.body.schedule_date} ${req.body.schedule_time}`;
+        if (await datetime.datetime_is_future(scheduled_at) === 0) {
+            res.status(response.status.HTTP_BAD_REQUEST.code)
+                .json({ "message": "scheduled_at must be in the future" });
+            return;
+        }
+    }
+
+    if (!inserts['active'] && scheduled_at) {
+        inserts['scheduled_at'] = scheduled_at;
     }
 
     const messages_obj = new model.messages.Messages();

@@ -19,12 +19,19 @@ class Messages extends base.Base {
                     'body',
                     'active',
                     'active_at',
+                    'scheduled_at',
                     'created_at',
                     'updated_at',
                 ],
             )
-            .orderBy('active_at', 'desc')
-            .orderBy('updated_at', 'desc');
+            // show active at the top
+            // then scheduled by when they'll be active
+            // then most recent updated
+            .orderByRaw(`
+                active_at ASC NULLS LAST,
+                scheduled_at ASC NULLS LAST,
+                updated_at DESC NULLS LAST
+            `);
     };
 
     async remove (selector) {

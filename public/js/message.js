@@ -34,7 +34,12 @@ $(function() {
             return;
         }
 
-        error_message.innerHTML = response[1].message;
+        let alert_message = 'Unable to add message';
+        if (response[1]['message']) {
+            alert_message = `${alert_message}: ${response[1]['message']}`;
+        }
+
+        error_message.innerHTML = alert_message;
         error_modal.show();
 
         return;
@@ -92,16 +97,37 @@ $(function() {
             let input_message_id = document.querySelector('#edit-message-form input#message_id');
             let input_name = document.querySelector('#edit-message-form input#name');
             let textarea_body = document.querySelector('#edit-message-form textarea#body');
+            let schedule_div = document.querySelector(`#edit-message-form .schedule`);
+            let input_schedule_date = document.querySelector(`#edit-message-form .schedule-date`);
+            let input_schedule_time = document.querySelector(`#edit-message-form .schedule-time`);
             let input_active = document.querySelector('#edit-message-form input#active');
+
+            // ensure we always start out with unset values since users can flip between messages
+            // without submitting the form.
+            input_schedule_date.value = '';
+            input_schedule_time.value = '';
 
             input_message_id.value = message_id;
             input_name.value = response[1]['name'];
             textarea_body.innerHTML = response[1]['body'];
-            if (response[1].active) {
+
+            if (response[1]['scheduled_at']) {
+                [input_schedule_date.value, input_schedule_time.value] = response[1]['scheduled_at'].split(' ');
+            }
+
+            const ancestor = find_ancestor(input_active, 'modal');
+            let id;
+            if (ancestor) {
+                id = ancestor.getAttribute('id');
+            }
+
+            if (response[1].active === 1) {
                 input_active.checked = true;
+                toggle_active(input_active, id);
             }
             else {
                 input_active.checked = false;
+                toggle_active(input_active, id);
             }
 
             const edit_message_modal = new bootstrap.Modal('#edit-message-modal', { "backdrop": true });
@@ -131,7 +157,12 @@ $(function() {
             return;
         }
 
-        alert_div.innerHTML = 'Unable to update message';
+        let alert_message = 'Unable to update message';
+        if (response[1]['message']) {
+            alert_message = `${alert_message}: ${response[1]['message']}`;
+        }
+
+        alert_div.innerHTML = alert_message;
         alert_div.classList.add('alert-danger');
         alert_div.classList.remove('d-none');
 
@@ -162,7 +193,12 @@ $(function() {
                 return;
             }
 
-            alert_div.innerHTML = 'Unable to delete message';
+            let alert_message = 'Unable to delete message';
+            if (response[1]['message']) {
+                alert_message = `${alert_message}: ${response[1]['message']}`;
+            }
+
+            alert_div.innerHTML = alert_message;
             alert_div.classList.add('alert-danger');
             alert_div.classList.remove('d-none');
 
@@ -174,6 +210,53 @@ $(function() {
         element.addEventListener( 'click', function(e) {
             let div_body = e.target;
             div_body.classList.toggle('ellipsis');
+        });
+    });
+
+    function find_ancestor(el, cls) {
+        while ((el = el.parentElement) && !el.classList.contains(cls));
+        return el;
+    }
+
+    function toggle_active(button, parent_id) {
+        let prefix = '';
+        if (parent_id) {
+            prefix = `#${parent_id} `;
+        }
+
+        const schedule_div = document.querySelector(`${prefix}.schedule`);
+        const schedule_date_input = document.querySelector(`${prefix}.schedule-date`);
+        const schedule_time_input = document.querySelector(`${prefix}.schedule-time`);
+
+        const now_seconds = get_now_seconds();
+        const now_top_of_hour = get_top_of_hour(now_seconds);
+        const next_top_of_hour = get_top_of_next_hour(now_seconds);
+
+        if ( button.checked ) {
+            button.value = 1;
+            schedule_div.classList.add('d-none');
+            schedule_date_input.value = '';
+            schedule_time_input.value = '';
+        }
+        else {
+            button.value = '';
+            schedule_div.classList.remove('d-none');
+        }
+
+        return;
+    }
+
+    document.querySelectorAll('#active').forEach( function(element) {
+        element.addEventListener( 'change', function(e) {
+            const button = e.target;
+            const ancestor = find_ancestor(button, 'modal');
+            let id;
+            if (ancestor) {
+                id = ancestor.getAttribute('id');
+            }
+            toggle_active(button, id);
+
+            return;
         });
     });
 });

@@ -3,7 +3,7 @@
     <div class="col-12">
         <%- include('includes/alert') _%>
         <div class="box">
-            <%_ if (typeof messages === 'undefined') { _%>
+            <%_ if (messages.length === 0) { _%>
             <div class="row box-row d-flex align-items-center">
                 <div class="col-auto left fw-bold">
                 Nothing yet to display.
@@ -19,6 +19,8 @@
                     <span class="pills float-start">
                     <%_ if (message.active === 1) { _%>
                         <span class="badge">active</span>
+                    <%_ } else if (message.scheduled_at) { _%>
+                        <span class="badge"><%- message.scheduled_at %></span>
                     <%_ } _%>
                     </span>
                 </div>

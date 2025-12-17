@@ -98,8 +98,8 @@ app.use((req, res) => {
 });
 
 // default route error handling
-app.use((err, req, res) => {
-    console.log(`[error] ${err}`);
+app.use((err, req, res, next) => {
+    console.error(`[error] ${err.stack}`);
     res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code)
         .header('Content-Type', 'text/plain')
         .send(response.status.HTTP_INTERNAL_SERVER_ERROR.string);

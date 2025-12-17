@@ -39,7 +39,10 @@ async function makeAPICall(endpoint, method, payload) {
         response = await fetch(requestUri, request);
 
         if (response.body) {
-            body = await response.json();
+            body = await response.text();
+            if (body) {
+                body = JSON.parse(body);
+            }
         }
     } catch (error) {
         return [error];
