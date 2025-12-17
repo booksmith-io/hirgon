@@ -4,7 +4,10 @@
 
 const { Command } = require('commander');
 const bcrypt = require('bcryptjs');
-const users = require('./../models/users');
+
+const model = {
+    users: require('./../models/users'),
+};
 
 const program = new Command();
 
@@ -33,7 +36,8 @@ if (options.debug) {
     process.exit(0);
 }
 
-users.update({ email: options.email }, { passwd: hash })
+let users_obj = new model.users.Users();
+users_obj.update({ email: options.email }, { passwd: hash })
     .then((ret) => {
         if (ret) {
             console.log('password updated');

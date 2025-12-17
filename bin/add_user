@@ -4,7 +4,10 @@
 
 const { Command } = require('commander');
 const bcrypt = require('bcryptjs');
-const users = require('./../models/users');
+
+const model = {
+    users: require('./../models/users'),
+};
 
 const program = new Command();
 
@@ -35,7 +38,8 @@ if (program.debug) {
     process.exit(0);
 }
 
-const user = users.get({ email: options.email });
+let users_obj = new model.users.Users();
+const user = users_obj.get({ email: options.email });
 if (user[0]) {
     console.log('a user with that email address already exists');
     process.exit(1);
@@ -47,7 +51,7 @@ let inserts = {
     passwd: hash,
 };
 
-users.create(inserts)
+users_obj.create(inserts)
     .then((ret) => {
         if (ret) {
             console.log(`user ${options.email} was added`);
