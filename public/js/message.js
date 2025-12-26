@@ -15,13 +15,13 @@ $(function() {
 
         let response = await addMessage(payload);
 
+        let path_input = document.querySelector('form#add-message-form #path');
         let name_input = document.querySelector('form#add-message-form #name');
         let body_input = document.querySelector('form#add-message-form #body');
         let active_input = document.querySelector('form#add-message-form #active');
 
         const add_message_modal = bootstrap.Modal.getInstance('#add-message-modal');
-        const error_modal = new bootstrap.Modal('#error-modal', { "backdrop": true });
-        let error_message = document.querySelector('#error-message');
+        let alert_div =  document.querySelector('#alert');
 
         add_message_modal.hide();
         form[0].reset();
@@ -39,8 +39,9 @@ $(function() {
             alert_message = `${alert_message}: ${response[1]['message']}`;
         }
 
-        error_message.innerHTML = alert_message;
-        error_modal.show();
+        alert_div.innerHTML = alert_message;
+        alert_div.classList.add('alert-danger');
+        alert_div.classList.remove('d-none');
 
         return;
     });
