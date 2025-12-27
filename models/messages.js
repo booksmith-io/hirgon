@@ -29,7 +29,7 @@ class Messages extends base.Base {
             // then most recent updated
             .orderByRaw(`
                 active_at ASC NULLS LAST,
-                scheduled_at DESC NULLS LAST,
+                scheduled_at ASC NULLS LAST,
                 updated_at DESC NULLS LAST
             `);
     };
