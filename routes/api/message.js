@@ -75,6 +75,13 @@ router.post('/:message_id', secure.protected, async (req, res) => {
         updates['scheduled_at'] = scheduled_at;
     }
 
+    // now, some special handling to unset scheduled_at.
+    // if scheduled_at is set in the db, but it comes back empty from the form, then
+    // unset it in the db.
+    if (messages[0].scheduled_at && (!req.body.schedule_date && !req.body.schedule_time)) {
+        updates['scheduled_at'] = null;
+    }
+
     if (Object.keys(updates).length === 0) {
         res.status(response.status.HTTP_NO_CONTENT.code)
             .json({ "message": response.status.HTTP_NO_CONTENT.string });

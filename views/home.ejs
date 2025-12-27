@@ -33,6 +33,9 @@
                             <%_ } else { _%>
                             <li><a data-action="active" href="#" class="set-message-active"><i class="bi bi-eye icon"></i>Set Active</a></li>
                             <%_ } _%>
+                            <%_ if (message.scheduled_at) { _%>
+                            <li><a href="#" class="unschedule"><i class="bi bi-calendar-x icon"></i>Unschedule</a></li>
+                            <%_ } _%>
                             <li><a href="#" class="edit-message"><i class="bi bi-gear icon"></i>Edit</a></li>
                             <li><a href="#" class="delete-message"><i class="bi bi-trash icon"></i>Delete</a></li>
                         </ul>

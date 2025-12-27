@@ -129,7 +129,7 @@ div .quick-actions .dropdown-menu {
 }
 
 div.box .quick-actions .dropdown-menu {
-    --bs-dropdown-min-width: 9.6rem;
+    --bs-dropdown-min-width: 10rem;
 }
 
 div .quick-actions a {

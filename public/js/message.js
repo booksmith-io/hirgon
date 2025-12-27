@@ -276,4 +276,30 @@ $(function() {
             return;
         });
     });
+
+    document.querySelectorAll('a.unschedule').forEach( function(element) {
+        element.addEventListener( 'click', async function(e) {
+            e.preventDefault();
+
+            const action = e.target.dataset.action;
+            const box_row = e.target.closest('div.box-row');
+            const message_id = box_row.dataset.message_id;
+            let alert_div =  document.querySelector('#alert');
+
+            let payload = {};
+            payload['schedule_at'] = null;
+
+            let response = await editMessage(message_id, payload);
+            if ( response[0].ok === true ) {
+                location.reload();
+                return;
+            }
+
+            alert_div.innerHTML = 'Unable to unschedule message';
+            alert_div.classList.add('alert-danger');
+            alert_div.classList.remove('d-none');
+
+            return;
+        });
+    });
 });
