@@ -25,11 +25,11 @@ class Messages extends base.Base {
                 ],
             )
             // show active at the top
-            // then scheduled by when they'll be active
+            // then scheduled_at by nearest to date
             // then most recent updated
             .orderByRaw(`
                 active_at ASC NULLS LAST,
-                scheduled_at ASC NULLS LAST,
+                scheduled_at DESC NULLS LAST,
                 updated_at DESC NULLS LAST
             `);
     };

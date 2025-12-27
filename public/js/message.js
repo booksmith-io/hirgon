@@ -260,4 +260,20 @@ $(function() {
             return;
         });
     });
+
+    document.querySelectorAll('button.clear_schedule').forEach( function(element) {
+        element.addEventListener( 'click', async function(e) {
+            e.preventDefault();
+
+            const input_group = e.target.closest('div.input-group');
+
+            const schedule_date_input = input_group.getElementsByClassName('schedule-date')[0];
+            const schedule_time_input = input_group.getElementsByClassName('schedule-time')[0];
+
+            schedule_date_input.value = '';
+            schedule_time_input.value = '';
+
+            return;
+        });
+    });
 });
