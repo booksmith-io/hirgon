@@ -15,7 +15,7 @@
 ### install project
 
 ```
-git clone git@github.com:renderorange/hirgon.git
+git clone git@github.com:booksmith-io/hirgon.git
 cd hirgon
 npm run setup
 cp -a .hirgonrc.example .hirgonrc
