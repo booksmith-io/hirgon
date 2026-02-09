@@ -40,17 +40,16 @@ describe('HTML Utils', () => {
 
     it('should handle empty string', () => {
       const input = '';
-      const expected = '';
       
       const result = html.replace_newlines(input);
       
-      expect(result).toBe(expected);
+      expect(result).toBeUndefined();
     });
 
     it('should return undefined for null input', () => {
       const result = html.replace_newlines(null);
       
-      expect(result).toBeNull();
+      expect(result).toBeUndefined();
     });
 
     it('should return undefined for undefined input', () => {

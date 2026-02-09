@@ -13,7 +13,7 @@ $(function() {
             payload[value.name] = value.value;
         });
 
-        let response = await addMessage(payload);
+        let response = await add_message(payload);
 
         let path_input = document.querySelector('form#add-message-form #path');
         let name_input = document.querySelector('form#add-message-form #name');
@@ -63,7 +63,7 @@ $(function() {
                 payload['active'] = 1;
             }
 
-            let response = await editMessage(message_id, payload);
+            let response = await edit_message(message_id, payload);
             if ( response[0].ok === true ) {
                 location.reload();
                 return;
@@ -85,7 +85,7 @@ $(function() {
             const message_id = box_row.dataset.message_id;
             let alert_div = document.querySelector('#alert');
 
-            let response = await getMessage(message_id);
+            let response = await get_message(message_id);
 
             if ( response[0].ok !== true ) {
                 alert_div.innerHTML = 'Unable to get message details';
@@ -152,7 +152,7 @@ $(function() {
             payload[value.name] = value.value;
         });
 
-        let response = await editMessage(message_id, payload);
+        let response = await edit_message(message_id, payload);
         if ( response[0].ok === true ) {
             location.reload();
             return;
@@ -188,7 +188,7 @@ $(function() {
             const message_id = box_row.dataset.message_id;
             let alert_div =  document.querySelector('#alert');
 
-            let response = await deleteMessage(message_id);
+            let response = await delete_message(message_id);
             if ( response[0].ok === true ) {
                 location.reload();
                 return;
@@ -289,7 +289,7 @@ $(function() {
             let payload = {};
             payload['schedule_at'] = null;
 
-            let response = await editMessage(message_id, payload);
+            let response = await edit_message(message_id, payload);
             if ( response[0].ok === true ) {
                 location.reload();
                 return;

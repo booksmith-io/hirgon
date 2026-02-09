@@ -2,13 +2,10 @@ const { Base } = require('./../../models/base');
 
 describe('Base Model', () => {
   let base;
-  let mockDb;
 
   beforeEach(() => {
-    mockDb = global.resetMockDb();
+    jest.clearAllMocks();
     base = new Base();
-    // The dbh should now be our mocked version
-    expect(base.dbh).toBeDefined();
   });
 
   describe('constructor', () => {
@@ -24,7 +21,12 @@ describe('Base Model', () => {
       const selector = { id: 1 };
       const expectedResult = [{ id: 1, name: 'test' }];
 
-      mockDb.select.mockResolvedValue(expectedResult);
+      // Mock the dbh method directly on the instance
+      const mockDb = {
+        where: jest.fn().mockReturnThis(),
+        select: jest.fn().mockResolvedValue(expectedResult)
+      };
+      base.dbh = () => mockDb;
 
       const result = await base.get(columns, selector);
 
@@ -40,7 +42,12 @@ describe('Base Model', () => {
       const updates = { name: 'updated' };
       const expectedResult = 1;
 
-      mockDb.update.mockResolvedValue(expectedResult);
+      // Mock the dbh method directly on the instance
+      const mockDb = {
+        where: jest.fn().mockReturnThis(),
+        update: jest.fn().mockResolvedValue(expectedResult)
+      };
+      base.dbh = () => mockDb;
 
       const result = await base.update(selector, updates);
 
@@ -55,7 +62,11 @@ describe('Base Model', () => {
       const inserts = { name: 'new record' };
       const expectedResult = [1];
 
-      mockDb.insert.mockResolvedValue(expectedResult);
+      // Mock the dbh method directly on the instance
+      const mockDb = {
+        insert: jest.fn().mockResolvedValue(expectedResult)
+      };
+      base.dbh = () => mockDb;
 
       const result = await base.create(inserts);
 

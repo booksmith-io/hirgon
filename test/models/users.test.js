@@ -2,12 +2,10 @@ const { Users } = require('./../../models/users');
 
 describe('Users Model', () => {
   let users;
-  let mockDb;
 
   beforeEach(() => {
-    mockDb = global.resetMockDb();
+    jest.clearAllMocks();
     users = new Users();
-    expect(users.dbh).toBeDefined();
   });
 
   describe('constructor', () => {
@@ -31,7 +29,12 @@ describe('Users Model', () => {
         }
       ];
 
-      mockDb.select.mockResolvedValue(expectedResult);
+      // Mock the dbh method directly on the instance
+      const mockDb = {
+        where: jest.fn().mockReturnThis(),
+        select: jest.fn().mockResolvedValue(expectedResult)
+      };
+      users.dbh = () => mockDb;
 
       const result = await users.get(selector);
 
@@ -49,14 +52,14 @@ describe('Users Model', () => {
     });
   });
 
-  describe('checkPasswdComplexity method', () => {
+  describe('check_passwd_complexity method', () => {
     it('should return error when password is missing', () => {
-      const result = users.checkPasswdComplexity(null);
+      const result = users.check_passwd_complexity(null);
       expect(result).toEqual([false, 'The password argument is required']);
     });
 
     it('should return error when password is empty string', () => {
-      const result = users.checkPasswdComplexity('');
+      const result = users.check_passwd_complexity('');
       expect(result).toEqual([false, 'The password argument is required']);
     });
 

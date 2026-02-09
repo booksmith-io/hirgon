@@ -18,13 +18,13 @@ router.get('/', secure.protected, (req, res) => {
     res.redirect('settings/profile');
 });
 
-router.get('/profile', secure.protected, (req, res) => {
+router.get('/profile', secure.requireAuth, (req, res) => {
     res.render('settings/profile', {
         layout: false,
     });
 });
 
-router.post('/profile', secure.protected, async (req, res) => {
+router.post('/profile', secure.requireAuth, async (req, res) => {
     if (!req.body || !req.body.name || !req.body.email) {
         res.status(response.status.HTTP_BAD_REQUEST.code).render('settings/profile', {
             layout: false,
@@ -78,13 +78,13 @@ router.post('/profile', secure.protected, async (req, res) => {
     return;
 });
 
-router.get('/password', secure.protected, (req, res) => {
+router.get('/password', secure.requireAuth, (req, res) => {
     res.render('settings/password', {
         layout: false,
     });
 });
 
-router.post('/password', secure.protected, async (req, res) => {
+router.post('/password', secure.requireAuth, async (req, res) => {
     if (!req.body || !req.body.old_password || !req.body.new_password || !req.body.confirm_new_password) {
         res.status(response.status.HTTP_BAD_REQUEST.code).render('settings/password', {
             layout: false,
@@ -161,7 +161,7 @@ router.post('/password', secure.protected, async (req, res) => {
     return;
 });
 
-router.get('/icon', secure.protected, async (req, res) => {
+router.get('/icon', secure.requireAuth, async (req, res) => {
     const icons = require('./../lib/icons');
 
     const systemdata_obj = new model.systemdata.Systemdata();
@@ -185,7 +185,7 @@ router.get('/icon', secure.protected, async (req, res) => {
     });
 });
 
-router.post('/icon', secure.protected, async (req, res) => {
+router.post('/icon', secure.requireAuth, async (req, res) => {
     const icons = require('./../lib/icons');
 
     const systemdata_obj = new model.systemdata.Systemdata();

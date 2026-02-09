@@ -14,7 +14,7 @@ const model = {
 
 router.use(body_parser.urlencoded({ extended: true }));
 
-router.get('/', secure.protected, async (req, res) => {
+router.get('/', secure.requireAuth, async (req, res) => {
     const messages_obj = new model.messages.Messages();
     let messages = await messages_obj.get({});
     for (let entry of messages) {

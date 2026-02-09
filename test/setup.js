@@ -1,7 +1,23 @@
 const path = require('path');
 
+// Global mock database helper
+global.resetMockDb = () => {
+  return {
+    where: jest.fn().mockReturnThis(),
+    select: jest.fn().mockResolvedValue([]),
+    update: jest.fn().mockResolvedValue(1),
+    insert: jest.fn().mockResolvedValue([1]),
+    del: jest.fn().mockResolvedValue(1),
+    from: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    limit: jest.fn().mockReturnThis(),
+    offset: jest.fn().mockReturnThis(),
+    first: jest.fn().mockResolvedValue(null)
+  };
+};
+
 // Helper to create Express app with proper configuration for testing
-function createTestApp() {
+function create_test_app() {
   const express = require('express');
   const app = express();
   
@@ -51,4 +67,4 @@ function createTestApp() {
   return app;
 }
 
-module.exports = { createTestApp };
+module.exports = { create_test_app };

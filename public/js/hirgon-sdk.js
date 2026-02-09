@@ -1,23 +1,23 @@
 /* functions for interacting with the hirgon site
 */
 
-async function addMessage(payload) {
-    return await makeAPICall(`/api/message`, 'post', payload);
+async function add_message(payload) {
+    return await make_api_call(`/api/message`, 'post', payload);
 }
 
-async function getMessage(message_id) {
-    return await makeAPICall(`/api/message/${message_id}`, 'get');
+async function get_message(message_id) {
+    return await make_api_call(`/api/message/${message_id}`, 'get');
 }
 
-async function editMessage(message_id, payload) {
-    return await makeAPICall(`/api/message/${message_id}`, 'post', payload);
+async function edit_message(message_id, payload) {
+    return await make_api_call(`/api/message/${message_id}`, 'post', payload);
 }
 
-async function deleteMessage(message_id) {
-    return await makeAPICall(`/api/message/${message_id}`, 'delete');
+async function delete_message(message_id) {
+    return await make_api_call(`/api/message/${message_id}`, 'delete');
 }
 
-async function makeAPICall(endpoint, method, payload) {
+async function make_api_call(endpoint, method, payload) {
     const requestUri = endpoint;
 
     let request = {

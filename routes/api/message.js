@@ -15,7 +15,7 @@ const model = {
 
 router.use(body_parser.urlencoded({ extended: true }));
 
-router.get('/:message_id', secure.protected, async (req, res) => {
+router.get('/:message_id', secure.requireAuth, async (req, res) => {
     const message_id = req.params.message_id;
 
     const messages_obj = new model.messages.Messages();
@@ -29,7 +29,7 @@ router.get('/:message_id', secure.protected, async (req, res) => {
     res.json(messages[0]);
 });
 
-router.post('/:message_id', secure.protected, async (req, res) => {
+router.post('/:message_id', secure.requireAuth, async (req, res) => {
     const message_id = req.params.message_id;
 
     const messages_obj = new model.messages.Messages();
@@ -100,7 +100,7 @@ router.post('/:message_id', secure.protected, async (req, res) => {
     return;
 });
 
-router.delete('/:message_id', secure.protected, async (req, res) => {
+router.delete('/:message_id', secure.requireAuth, async (req, res) => {
     const message_id = req.params.message_id;
 
     const messages_obj = new model.messages.Messages();
@@ -123,7 +123,7 @@ router.delete('/:message_id', secure.protected, async (req, res) => {
     return;
 });
 
-router.post('/', secure.protected, async (req, res) => {
+router.post('/', secure.requireAuth, async (req, res) => {
     if (!req.body.name || !req.body.body) {
         res.status(response.status.HTTP_BAD_REQUEST.code)
             .json({ "message": "The name and body parameters are required" });

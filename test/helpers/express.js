@@ -1,7 +1,7 @@
 const path = require('path');
 
 // Helper to create Express app with proper configuration for testing
-function createTestApp() {
+function create_test_app() {
   const express = require('express');
   const app = express();
   
@@ -12,6 +12,10 @@ function createTestApp() {
   // Body parsing middleware
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+  
+  // Add body-parser middleware for compatibility
+  const bodyParser = require('body-parser');
+  app.use(bodyParser.urlencoded({ extended: true }));
   
   // Mock request locals for templates
   app.use((req, res, next) => {
@@ -65,4 +69,4 @@ function createTestApp() {
   return app;
 }
 
-module.exports = { createTestApp };
+module.exports = { create_test_app };
