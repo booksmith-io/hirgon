@@ -14,7 +14,10 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4",
+    "jest-environment-node": "^29.7.0"
   },
   "scripts": {
     "start": "node server.js",
@@ -22,6 +25,9 @@
     "setup": "make install",
     "update_deps": "make update_deps",
     "upgrade": "make upgrade",
-    "upgrade_database": "make upgrade_database"
+    "upgrade_database": "make upgrade_database",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   }
 }
