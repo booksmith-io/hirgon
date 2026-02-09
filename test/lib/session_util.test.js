@@ -121,7 +121,7 @@ describe('Session Utils', () => {
       jest.mock('better-sqlite3', () => {
         return jest.fn().mockImplementation(() => ({}));
       });
-      
+
       jest.mock('better-sqlite3-session-store', () => {
         return jest.fn().mockImplementation(() => {
           return function(options) {

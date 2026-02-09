@@ -12,7 +12,7 @@ describe('Logout Routes', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     app = express();
     app.use(express.urlencoded({ extended: true }));
     app.use((req, res, next) => {

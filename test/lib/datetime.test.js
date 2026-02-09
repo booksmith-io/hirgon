@@ -50,7 +50,7 @@ describe('Datetime Utils', () => {
 
     it('should validate datetime regex pattern', () => {
       const datetime_regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
-      
+
       expect(datetime_regex.test('2025-12-31 23:59:59')).toBe(true);
       expect(datetime_regex.test('2025-01-01 00:00:00')).toBe(true);
       expect(datetime_regex.test('2025-06-15 14:30:45')).toBe(true);

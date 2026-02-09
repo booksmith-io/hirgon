@@ -21,7 +21,7 @@ describe('Login Route Handler', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     app = create_test_app();
     app.use('/login', loginRouter);
 
@@ -39,14 +39,14 @@ describe('Login Route Handler', () => {
   describe('GET /login', () => {
     it('should render login page if not authenticated', async () => {
       const response = await request(app).get('/login');
-      
+
       expect(response.status).toBe(200);
       expect(response.text).toBe('Login page rendered successfully');
     });
 
     it('should render login page if not authenticated', async () => {
       const response = await request(app).get('/login');
-      
+
       expect(response.status).toBe(200);
       expect(response.text).toBe('Login page rendered successfully');
     });

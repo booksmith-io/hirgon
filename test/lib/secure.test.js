@@ -13,7 +13,7 @@ describe('Security Middleware', () => {
       redirect: jest.fn()
     };
     mockNext = jest.fn();
-    
+
     // Mock session_util to handle undefined session
     jest.spyOn(session_util, 'empty_session').mockImplementation(() => {});
     jest.spyOn(session_util, 'set_alert').mockImplementation(() => {});

@@ -4,19 +4,19 @@ const path = require('path');
 function create_test_app() {
   const express = require('express');
   const app = express();
-  
+
   // Set up view engine like the real server
   app.set('view engine', 'ejs');
   app.set('views', path.resolve(__dirname, './../views'));
-  
+
   // Body parsing middleware
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
-  
+
   // Add body-parser middleware for compatibility
   const bodyParser = require('body-parser');
   app.use(bodyParser.urlencoded({ extended: true }));
-  
+
   // Mock request locals for templates
   app.use((req, res, next) => {
     res.locals.path = req.path;
@@ -33,7 +33,7 @@ function create_test_app() {
     }
     next();
   });
-  
+
   // Mock the render method to avoid actual template rendering issues
   app.use((req, res, next) => {
     const originalRender = res.render;
@@ -41,7 +41,7 @@ function create_test_app() {
       // Store render arguments for inspection in tests
       res._renderView = view;
       res._renderLocals = locals;
-      
+
       // For login page with errors, return error status
       if (view === 'login' && locals && locals.alert) {
         res.status(401).send('Login page with error rendered');
@@ -65,7 +65,7 @@ function create_test_app() {
     };
     next();
   });
-  
+
   return app;
 }
 

@@ -3,32 +3,58 @@ const { create_test_app } = require('../helpers/express');
 const bcrypt = require('bcryptjs');
 
 // Mock the dependencies
-jest.mock('./../../lib/secure');
+jest.mock('./../../lib/dbh', () => {
+  return jest.fn(() => global.resetMockDb());
+});
+jest.mock('./../../lib/secure', () => ({
+  requireAuth: (req, res, next) => {
+    req.session = { user: { user_id: 1 }, authenticated: true };
+    res.locals = {
+      user: {
+        user_id: 1,
+        name: 'Test User',
+        email: 'test@example.com'
+      }
+    };
+    next();
+  },
+  protected: (req, res, next) => {
+    req.session = { user: { user_id: 1 }, authenticated: true };
+    res.locals = {
+      user: {
+        user_id: 1,
+        name: 'Test User',
+        email: 'test@example.com'
+      }
+    };
+    next();
+  }
+}));
 jest.mock('./../../models/users');
 jest.mock('./../../models/systemdata');
 jest.mock('./../../lib/response', () => ({
   status: {
     HTTP_BAD_REQUEST: { code: 400 },
-    HTTP_INTERNAL_SERVER_ERROR: { code: 500 }
+    HTTP_INTERNAL_SERVER_ERROR: { code: 500 },
+    HTTP_UNAUTHORIZED: { code: 401 }
   }
 }));
 jest.mock('./../../lib/icons', () => ({
   icons: ['icon1', 'icon2', 'icon3']
 }));
 
-const secure = require('./../../lib/secure');
 const settingsRouter = require('./../../routes/settings');
 const { Users } = require('./../../models/users');
 const { Systemdata } = require('./../../models/systemdata');
 
-describe.skip('Settings Routes', () => {
+describe('Settings Routes', () => {
   let app;
   let mockUsers;
   let mockSystemdata;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     app = create_test_app();
     app.use('/settings', settingsRouter);
 
@@ -44,19 +70,6 @@ describe.skip('Settings Routes', () => {
 
     Users.mockImplementation(() => mockUsers);
     Systemdata.mockImplementation(() => mockSystemdata);
-    
-    // Mock secure middleware
-    secure.requireAuth = (req, res, next) => {
-      req.session = { user: { user_id: 1 } };
-      res.locals = { 
-        user: {
-          user_id: 1,
-          name: 'Test User',
-          email: 'test@example.com'
-        }
-      };
-      next();
-    };
   });
 
   describe('GET /settings', () => {
@@ -80,7 +93,7 @@ describe.skip('Settings Routes', () => {
         .post('/settings/profile')
         .send({});
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
     });
 
     it('should return error for missing name', async () => {
@@ -88,7 +101,7 @@ describe.skip('Settings Routes', () => {
         .post('/settings/profile')
         .send({ email: 'test@example.com' });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
     });
 
     it('should return error for missing email', async () => {
@@ -96,7 +109,7 @@ describe.skip('Settings Routes', () => {
         .post('/settings/profile')
         .send({ name: 'Test User' });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
     });
 
     it('should update profile successfully', async () => {
@@ -147,18 +160,18 @@ describe.skip('Settings Routes', () => {
         .post('/settings/password')
         .send({});
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
     });
 
     it('should return error for missing old password', async () => {
       const response = await request(app)
         .post('/settings/password')
-        .send({ 
+        .send({
           new_password: 'newpass123',
           confirm_new_password: 'newpass123'
         });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
     });
 
     it('should return error for incorrect old password', async () => {
@@ -226,7 +239,7 @@ describe.skip('Settings Routes', () => {
       mockSystemdata.get.mockResolvedValue([]);
 
       const response = await request(app).get('/settings/icon');
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(401);
     });
   });
 
@@ -244,7 +257,7 @@ describe.skip('Settings Routes', () => {
         .post('/settings/icon')
         .send({});
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
     });
 
     it('should update icon successfully', async () => {

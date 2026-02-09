@@ -2,22 +2,30 @@ const request = require('supertest');
 const { create_test_app } = require('../helpers/express');
 
 // Mock the dependencies
-jest.mock('./../../lib/secure');
+jest.mock('./../../lib/dbh', () => {
+  return jest.fn(() => global.resetMockDb());
+});
+jest.mock('./../../lib/secure', () => ({
+  requireAuth: (req, res, next) => {
+    req.session = { user: { user_id: 1, name: 'Test User' }, authenticated: true };
+    res.locals.user = { user_id: 1, name: 'Test User' };
+    next();
+  }
+}));
 jest.mock('./../../models/messages');
 jest.mock('./../../lib/html');
 
-const secure = require('./../../lib/secure');
 const homeRouter = require('./../../routes/home');
 const { Messages } = require('./../../models/messages');
 const html = require('./../../lib/html');
 
-describe.skip('Home Routes', () => {
+describe('Home Routes', () => {
   let app;
   let mockMessages;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     app = create_test_app();
     app.use('/', homeRouter);
 
@@ -25,14 +33,9 @@ describe.skip('Home Routes', () => {
       get: jest.fn(),
     };
     Messages.mockImplementation(() => mockMessages);
-    
-    // Mock secure middleware
-    secure.requireAuth = (req, res, next) => {
-      req.session = { user: { user_id: 1, name: 'Test User' } };
-      res.locals.user = { user_id: 1, name: 'Test User' };
-      next();
-    };
-    
+
+
+
     // Mock html.replace_newlines
     html.replace_newlines = jest.fn((text) => text.replace(/\n/g, '<br>'));
   });

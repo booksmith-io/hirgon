@@ -2,7 +2,15 @@ const request = require('supertest');
 const { create_test_app } = require('../../helpers/express');
 
 // Mock the dependencies
-jest.mock('./../../../lib/secure');
+jest.mock('./../../../lib/dbh', () => {
+  return jest.fn(() => global.resetMockDb());
+});
+jest.mock('./../../../lib/secure', () => ({
+  requireAuth: (req, res, next) => {
+    req.session = { user: { user_id: 1 }, authenticated: true };
+    next();
+  }
+}));
 jest.mock('./../../../models/messages');
 jest.mock('./../../../lib/html');
 jest.mock('./../../../lib/datetime');
@@ -17,19 +25,18 @@ jest.mock('./../../../lib/response', () => ({
 }));
 jest.mock('./../../../lib/session_util');
 
-const secure = require('./../../../lib/secure');
 const apiMessageRouter = require('./../../../routes/api/message');
 const { Messages } = require('./../../../models/messages');
 const datetime = require('./../../../lib/datetime');
 const session_util = require('./../../../lib/session_util');
 
-describe.skip('API Message Routes', () => {
+describe('API Message Routes', () => {
   let app;
   let mockMessages;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     app = create_test_app();
     app.use('/api/message', apiMessageRouter);
 
@@ -39,7 +46,7 @@ describe.skip('API Message Routes', () => {
       remove: jest.fn(),
       create: jest.fn(),
     };
-    
+
     // Mock the Messages constructor to return an instance with mocked dbh
     Messages.mockImplementation(() => {
       const mockDb = {
@@ -50,7 +57,7 @@ describe.skip('API Message Routes', () => {
         insert: jest.fn().mockResolvedValue([1]),
         update: jest.fn().mockResolvedValue(1)
       };
-      
+
       return {
         get: mockMessages.get,
         update: mockMessages.update,
@@ -59,23 +66,19 @@ describe.skip('API Message Routes', () => {
         dbh: jest.fn(() => mockDb)
       };
     });
-    
-    // Mock secure middleware
-    secure.requireAuth = (req, res, next) => {
-      req.session = { user: { user_id: 1 } };
-      next();
-    };
-    
+
+
+
     // Mock session_util methods that might be called
     session_util.empty_session = jest.fn();
     session_util.get_alert = jest.fn();
     session_util.set_alert = jest.fn();
-    
+
     // Mock datetime functions
     datetime.datetime_is_future = jest.fn().mockResolvedValue(1);
   });
 
-  describe.skip('GET /api/message/:message_id', () => {
+  describe('GET /api/message/:message_id', () => {
     it('should return message by id', async () => {
       jest.setTimeout(10000); // Increase timeout for this test
       const mockMessage = {
@@ -99,7 +102,7 @@ describe.skip('API Message Routes', () => {
     });
 
     it('should return 404 for non-existent message', async () => {
-      mockMessages.get.mockResolvedValue([]);
+      mockMessages.get.mockResolvedValue(null);
 
       const response = await request(app).get('/api/message/999');
 
@@ -110,7 +113,7 @@ describe.skip('API Message Routes', () => {
 
   describe('POST /api/message/:message_id', () => {
     it('should return 404 for non-existent message', async () => {
-      mockMessages.get.mockResolvedValue([]);
+      mockMessages.get.mockResolvedValue(null);
 
       const response = await request(app)
         .post('/api/message/999')
@@ -137,7 +140,7 @@ describe.skip('API Message Routes', () => {
         .send({ name: 'Test Message', body: 'Test body' });
 
       expect(response.status).toBe(204);
-      expect(response.body).toEqual({ message: 'No Content' });
+      expect(response.body).toEqual({});
     });
 
     it('should update message name', async () => {
@@ -240,7 +243,7 @@ describe.skip('API Message Routes', () => {
 
   describe('DELETE /api/message/:message_id', () => {
     it('should return 404 for non-existent message', async () => {
-      mockMessages.get.mockResolvedValue([]);
+      mockMessages.get.mockResolvedValue(null);
 
       const response = await request(app).delete('/api/message/999');
 
