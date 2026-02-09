@@ -1,6 +1,7 @@
 *.swp
-tmp/
+tmp
 .hirgonrc
 db/hirgon.sqlite3
 db/sessions.sqlite3
 node_modules/
+coverage/
