@@ -1,67 +1,162 @@
 /* functionality for interacting with the messages
 */
 
-$(function() {
-    document.querySelector('#add-message-modal form#add-message-form').addEventListener( 'submit', async function(e) {
-        e.preventDefault();
-
-        let form = $(this);
-        let form_inputs = $(this).serializeArray();
-
-        let payload = {};
-        form_inputs.forEach( function(value) {
-            payload[value.name] = value.value;
-        });
-
-        let response = await add_message(payload);
-
-        let path_input = document.querySelector('form#add-message-form #path');
-        let name_input = document.querySelector('form#add-message-form #name');
-        let body_input = document.querySelector('form#add-message-form #body');
-        let active_input = document.querySelector('form#add-message-form #active');
-
-        const add_message_modal = bootstrap.Modal.getInstance('#add-message-modal');
-        let alert_div =  document.querySelector('#alert');
-
-        add_message_modal.hide();
-        form[0].reset();
-        name_input.value = '';
-        body_input.innerHTML = '';
-        active_input.checked = false;
-
-        if ( response[0].ok === true ) {
-            location.reload();
-            return;
-        }
-
-        let alert_message = 'Unable to add message';
-        if (response[1]['message']) {
-            alert_message = `${alert_message}: ${response[1]['message']}`;
-        }
-
-        alert_div.innerHTML = alert_message;
-        alert_div.classList.add('alert-danger');
-        alert_div.classList.remove('d-none');
-
-        return;
-    });
-
-    document.querySelectorAll('a.set-message-active').forEach( function(element) {
-        element.addEventListener( 'click', async function(e) {
+$(function () {
+    document.querySelector("#add-message-modal form#add-message-form")
+        .addEventListener( "submit", async function (e) {
             e.preventDefault();
 
-            const action = e.target.dataset.action;
-            const box_row = e.target.closest('div.box-row');
-            const message_id = box_row.dataset.message_id;
-            let alert_div =  document.querySelector('#alert');
+            let form = $(this);
+            let form_inputs = $(this)
+                .serializeArray();
 
             let payload = {};
-            if (action === 'inactive') {
-                payload['active'] = 0;
+            form_inputs.forEach( function (value) {
+                payload[value.name] = value.value;
+            });
+
+            let response = await add_message(payload);
+
+            let path_input = document.querySelector("form#add-message-form #path");
+            let name_input = document.querySelector("form#add-message-form #name");
+            let body_input = document.querySelector("form#add-message-form #body");
+            let active_input = document.querySelector("form#add-message-form #active");
+
+            const add_message_modal = bootstrap.Modal.getInstance("#add-message-modal");
+            let alert_div =  document.querySelector("#alert");
+
+            add_message_modal.hide();
+            form[0].reset();
+            name_input.value = "";
+            body_input.innerHTML = "";
+            active_input.checked = false;
+
+            if ( response[0].ok === true ) {
+                location.reload();
+                return;
             }
-            else {
-                payload['active'] = 1;
+
+            let alert_message = "Unable to add message";
+            if (response[1]["message"]) {
+                alert_message = `${alert_message}: ${response[1]["message"]}`;
             }
+
+            alert_div.innerHTML = alert_message;
+            alert_div.classList.add("alert-danger");
+            alert_div.classList.remove("d-none");
+
+            return;
+        });
+
+    document.querySelectorAll("a.set-message-active")
+        .forEach( function (element) {
+            element.addEventListener( "click", async function (e) {
+                e.preventDefault();
+
+                const action = e.target.dataset.action;
+                const box_row = e.target.closest("div.box-row");
+                const message_id = box_row.dataset.message_id;
+                let alert_div =  document.querySelector("#alert");
+
+                let payload = {};
+                if (action === "inactive") {
+                    payload["active"] = 0;
+                }
+                else {
+                    payload["active"] = 1;
+                }
+
+                let response = await edit_message(message_id, payload);
+                if ( response[0].ok === true ) {
+                    location.reload();
+                    return;
+                }
+
+                alert_div.textContent = "Unable to set message " + action;
+                alert_div.classList.add("alert-danger");
+                alert_div.classList.remove("d-none");
+
+                return;
+            });
+        });
+
+    document.querySelectorAll("a.edit-message")
+        .forEach( function (element) {
+            element.addEventListener( "click", async function (e) {
+                e.preventDefault();
+
+                const box_row = e.target.closest("div.box-row");
+                const message_id = box_row.dataset.message_id;
+                let alert_div = document.querySelector("#alert");
+
+                let response = await get_message(message_id);
+
+                if ( response[0].ok !== true ) {
+                    alert_div.textContent = "Unable to get message details";
+                    alert_div.classList.add("alert-danger");
+                    alert_div.classList.remove("d-none");
+
+                    return false;
+                }
+
+                let input_message_id = document.querySelector("#edit-message-form input#message_id");
+                let input_name = document.querySelector("#edit-message-form input#name");
+                let textarea_body = document.querySelector("#edit-message-form textarea#body");
+                let schedule_div = document.querySelector("#edit-message-form .schedule");
+                let input_schedule_date = document.querySelector("#edit-message-form .schedule-date");
+                let input_schedule_time = document.querySelector("#edit-message-form .schedule-time");
+                let input_active = document.querySelector("#edit-message-form input#active");
+
+                // ensure we always start out with unset values since users can flip between messages
+                // without submitting the form.
+                input_schedule_date.value = "";
+                input_schedule_time.value = "";
+
+                input_message_id.value = message_id;
+                input_name.value = response[1]["name"];
+                textarea_body.value = response[1]["body"];
+
+                if (response[1]["scheduled_at"]) {
+                    [input_schedule_date.value, input_schedule_time.value] = response[1]["scheduled_at"].split(" ");
+                }
+
+                const ancestor = find_ancestor(input_active, "modal");
+                let id;
+                if (ancestor) {
+                    id = ancestor.getAttribute("id");
+                }
+
+                if (response[1].active === 1) {
+                    input_active.checked = true;
+                    toggle_active(input_active, id);
+                }
+                else {
+                    input_active.checked = false;
+                    toggle_active(input_active, id);
+                }
+
+                const edit_message_modal = new bootstrap.Modal("#edit-message-modal", { "backdrop": true });
+                edit_message_modal.show();
+
+                return;
+            });
+        });
+
+    document.querySelector("#edit-message-modal form#edit-message-form")
+        .addEventListener( "submit", async function (e) {
+            e.preventDefault();
+
+            let form = $(this);
+            const message_id = document.querySelector("form#edit-message-form #message_id").value;
+            let form_inputs = $(this)
+                .serializeArray();
+            const edit_message_modal = bootstrap.Modal.getInstance("#edit-message-modal");
+            let alert_div =  document.querySelector("#alert");
+
+            let payload = {};
+            form_inputs.forEach( function (value) {
+                payload[value.name] = value.value;
+            });
 
             let response = await edit_message(message_id, payload);
             if ( response[0].ok === true ) {
@@ -69,158 +164,71 @@ $(function() {
                 return;
             }
 
-            alert_div.innerHTML = 'Unable to set message ' + action;
-            alert_div.classList.add('alert-danger');
-            alert_div.classList.remove('d-none');
+            let alert_message = "Unable to update message";
+            if (response[1]["message"]) {
+                alert_message = `${alert_message}: ${response[1]["message"]}`;
+            }
+
+            alert_div.textContent = alert_message;
+            alert_div.classList.add("alert-danger");
+            alert_div.classList.remove("d-none");
+
+            let input_name = document.querySelector("form#edit-message-form #name");
+            let input_body = document.querySelector("form#edit-message-form #body");
+            let input_active = document.querySelector("form#edit-message-form #active");
+
+            edit_message_modal.hide();
+            form[0].reset();
+            input_name.value = "";
+            input_body = "";
+            input_active = "";
 
             return;
         });
-    });
 
-    document.querySelectorAll('a.edit-message').forEach( function(element) {
-        element.addEventListener( 'click', async function(e) {
-            e.preventDefault();
+    document.querySelectorAll("a.delete-message")
+        .forEach( function (element) {
+            element.addEventListener( "click", async function (e) {
+                e.preventDefault();
 
-            const box_row = e.target.closest('div.box-row');
-            const message_id = box_row.dataset.message_id;
-            let alert_div = document.querySelector('#alert');
+                const box_row = e.target.closest("div.box-row");
+                const message_id = box_row.dataset.message_id;
+                let alert_div =  document.querySelector("#alert");
 
-            let response = await get_message(message_id);
+                let response = await delete_message(message_id);
+                if ( response[0].ok === true ) {
+                    location.reload();
+                    return;
+                }
 
-            if ( response[0].ok !== true ) {
-                alert_div.innerHTML = 'Unable to get message details';
-                alert_div.classList.add('alert-danger');
-                alert_div.classList.remove('d-none');
+                let alert_message = "Unable to delete message";
+                if (response[1]["message"]) {
+                    alert_message = `${alert_message}: ${response[1]["message"]}`;
+                }
 
-                return false;
-            }
+                alert_div.textContent = alert_message;
+                alert_div.classList.add("alert-danger");
+                alert_div.classList.remove("d-none");
 
-            let input_message_id = document.querySelector('#edit-message-form input#message_id');
-            let input_name = document.querySelector('#edit-message-form input#name');
-            let textarea_body = document.querySelector('#edit-message-form textarea#body');
-            let schedule_div = document.querySelector(`#edit-message-form .schedule`);
-            let input_schedule_date = document.querySelector(`#edit-message-form .schedule-date`);
-            let input_schedule_time = document.querySelector(`#edit-message-form .schedule-time`);
-            let input_active = document.querySelector('#edit-message-form input#active');
-
-            // ensure we always start out with unset values since users can flip between messages
-            // without submitting the form.
-            input_schedule_date.value = '';
-            input_schedule_time.value = '';
-
-            input_message_id.value = message_id;
-            input_name.value = response[1]['name'];
-            textarea_body.innerHTML = response[1]['body'];
-
-            if (response[1]['scheduled_at']) {
-                [input_schedule_date.value, input_schedule_time.value] = response[1]['scheduled_at'].split(' ');
-            }
-
-            const ancestor = find_ancestor(input_active, 'modal');
-            let id;
-            if (ancestor) {
-                id = ancestor.getAttribute('id');
-            }
-
-            if (response[1].active === 1) {
-                input_active.checked = true;
-                toggle_active(input_active, id);
-            }
-            else {
-                input_active.checked = false;
-                toggle_active(input_active, id);
-            }
-
-            const edit_message_modal = new bootstrap.Modal('#edit-message-modal', { "backdrop": true });
-            edit_message_modal.show();
-
-            return;
-        });
-    });
-
-    document.querySelector('#edit-message-modal form#edit-message-form').addEventListener( 'submit', async function(e) {
-        e.preventDefault();
-
-        let form = $(this);
-        const message_id = document.querySelector('form#edit-message-form #message_id').value;
-        let form_inputs = $(this).serializeArray();
-        const edit_message_modal = bootstrap.Modal.getInstance('#edit-message-modal');
-        let alert_div =  document.querySelector('#alert');
-
-        let payload = {};
-        form_inputs.forEach( function(value) {
-            payload[value.name] = value.value;
-        });
-
-        let response = await edit_message(message_id, payload);
-        if ( response[0].ok === true ) {
-            location.reload();
-            return;
-        }
-
-        let alert_message = 'Unable to update message';
-        if (response[1]['message']) {
-            alert_message = `${alert_message}: ${response[1]['message']}`;
-        }
-
-        alert_div.innerHTML = alert_message;
-        alert_div.classList.add('alert-danger');
-        alert_div.classList.remove('d-none');
-
-        let input_name = document.querySelector('form#edit-message-form #name');
-        let input_body = document.querySelector('form#edit-message-form #body');
-        let input_active = document.querySelector('form#edit-message-form #active');
-
-        edit_message_modal.hide();
-        form[0].reset();
-        input_name.value = '';
-        input_body = '';
-        input_active = '';
-
-        return;
-    });
-
-    document.querySelectorAll('a.delete-message').forEach( function(element) {
-        element.addEventListener( 'click', async function(e) {
-            e.preventDefault();
-
-            const box_row = e.target.closest('div.box-row');
-            const message_id = box_row.dataset.message_id;
-            let alert_div =  document.querySelector('#alert');
-
-            let response = await delete_message(message_id);
-            if ( response[0].ok === true ) {
-                location.reload();
                 return;
-            }
-
-            let alert_message = 'Unable to delete message';
-            if (response[1]['message']) {
-                alert_message = `${alert_message}: ${response[1]['message']}`;
-            }
-
-            alert_div.innerHTML = alert_message;
-            alert_div.classList.add('alert-danger');
-            alert_div.classList.remove('d-none');
-
-            return;
+            });
         });
-    });
 
-    document.querySelectorAll('div.toggle_truncate').forEach( function(element) {
-        element.addEventListener( 'click', function(e) {
-            let div_body = e.target;
-            div_body.classList.toggle('ellipsis');
+    document.querySelectorAll("div.toggle_truncate")
+        .forEach( function (element) {
+            element.addEventListener( "click", function (e) {
+                let div_body = e.target;
+                div_body.classList.toggle("ellipsis");
+            });
         });
-    });
 
-    function find_ancestor(el, cls) {
+    function find_ancestor (el, cls) {
         while ((el = el.parentElement) && !el.classList.contains(cls));
         return el;
     }
 
-    function toggle_active(button, parent_id) {
-        let prefix = '';
+    function toggle_active (button, parent_id) {
+        let prefix = "";
         if (parent_id) {
             prefix = `#${parent_id} `;
         }
@@ -235,71 +243,74 @@ $(function() {
 
         if ( button.checked ) {
             button.value = 1;
-            schedule_div.classList.add('d-none');
-            schedule_date_input.value = '';
-            schedule_time_input.value = '';
+            schedule_div.classList.add("d-none");
+            schedule_date_input.value = "";
+            schedule_time_input.value = "";
         }
         else {
-            button.value = '';
-            schedule_div.classList.remove('d-none');
+            button.value = "";
+            schedule_div.classList.remove("d-none");
         }
 
         return;
     }
 
-    document.querySelectorAll('#active').forEach( function(element) {
-        element.addEventListener( 'change', function(e) {
-            const button = e.target;
-            const ancestor = find_ancestor(button, 'modal');
-            let id;
-            if (ancestor) {
-                id = ancestor.getAttribute('id');
-            }
-            toggle_active(button, id);
+    document.querySelectorAll("#active")
+        .forEach( function (element) {
+            element.addEventListener( "change", function (e) {
+                const button = e.target;
+                const ancestor = find_ancestor(button, "modal");
+                let id;
+                if (ancestor) {
+                    id = ancestor.getAttribute("id");
+                }
+                toggle_active(button, id);
 
-            return;
-        });
-    });
-
-    document.querySelectorAll('button.clear_schedule').forEach( function(element) {
-        element.addEventListener( 'click', async function(e) {
-            e.preventDefault();
-
-            const input_group = e.target.closest('div.input-group');
-
-            const schedule_date_input = input_group.getElementsByClassName('schedule-date')[0];
-            const schedule_time_input = input_group.getElementsByClassName('schedule-time')[0];
-
-            schedule_date_input.value = '';
-            schedule_time_input.value = '';
-
-            return;
-        });
-    });
-
-    document.querySelectorAll('a.unschedule').forEach( function(element) {
-        element.addEventListener( 'click', async function(e) {
-            e.preventDefault();
-
-            const action = e.target.dataset.action;
-            const box_row = e.target.closest('div.box-row');
-            const message_id = box_row.dataset.message_id;
-            let alert_div =  document.querySelector('#alert');
-
-            let payload = {};
-            payload['schedule_at'] = null;
-
-            let response = await edit_message(message_id, payload);
-            if ( response[0].ok === true ) {
-                location.reload();
                 return;
-            }
-
-            alert_div.innerHTML = 'Unable to unschedule message';
-            alert_div.classList.add('alert-danger');
-            alert_div.classList.remove('d-none');
-
-            return;
+            });
         });
-    });
+
+    document.querySelectorAll("button.clear_schedule")
+        .forEach( function (element) {
+            element.addEventListener( "click", async function (e) {
+                e.preventDefault();
+
+                const input_group = e.target.closest("div.input-group");
+
+                const schedule_date_input = input_group.getElementsByClassName("schedule-date")[0];
+                const schedule_time_input = input_group.getElementsByClassName("schedule-time")[0];
+
+                schedule_date_input.value = "";
+                schedule_time_input.value = "";
+
+                return;
+            });
+        });
+
+    document.querySelectorAll("a.unschedule")
+        .forEach( function (element) {
+            element.addEventListener( "click", async function (e) {
+                e.preventDefault();
+
+                const action = e.target.dataset.action;
+                const box_row = e.target.closest("div.box-row");
+                const message_id = box_row.dataset.message_id;
+                let alert_div =  document.querySelector("#alert");
+
+                let payload = {};
+                payload["schedule_at"] = null;
+
+                let response = await edit_message(message_id, payload);
+                if ( response[0].ok === true ) {
+                    location.reload();
+                    return;
+                }
+
+                alert_div.textContent = "Unable to unschedule message";
+                alert_div.classList.add("alert-danger");
+                alert_div.classList.remove("d-none");
+
+                return;
+            });
+        });
 });

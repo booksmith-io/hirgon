@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noarchive">
+<% if (csrf_token) { _%>
+<meta name="csrf-token" content="<%= csrf_token %>">
+<% } _%>
 <title><%= app.name %></title>
 <link rel="stylesheet" href="/src/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
 <link rel="stylesheet" href="/src/bootstrap-5.3.3/css/bootstrap.min.css">
@@ -18,7 +22,7 @@
 <% } _%>
 </head>
 <body id="<%= id %>">
-<% if (id !== 'login') { _%>
+<% if (id !== 'login' && !id.includes('_error')) { _%>
 <%- include('top_nav') _%>
 <% } _%>
 <div class="content container-lg vh-100">

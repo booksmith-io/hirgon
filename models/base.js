@@ -1,8 +1,8 @@
 // base model for models
 
 class Base {
-    constructor() {
-        this.dbh = require('./../lib/dbh');
+    constructor () {
+        this.dbh = require("./../lib/dbh");
         this._table = this.constructor.name.toLowerCase();
     }
 

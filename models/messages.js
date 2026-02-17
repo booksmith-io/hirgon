@@ -1,27 +1,27 @@
 // messages model
 
-const base = require('./base');
+const base = require("./base");
 
 class Messages extends base.Base {
-    constructor() {
+    constructor () {
         super();
     }
 
     // rather than calling super.get like we do in the users model
     // we're just calling super.dbh so we can also run orderBy.
     async get (selector) {
-        return await this.dbh('messages')
+        return await this.dbh("messages")
             .where(selector)
             .select(
                 [
-                    'message_id',
-                    'name',
-                    'body',
-                    'active',
-                    'active_at',
-                    'scheduled_at',
-                    'created_at',
-                    'updated_at',
+                    "message_id",
+                    "name",
+                    "body",
+                    "active",
+                    "active_at",
+                    "scheduled_at",
+                    "created_at",
+                    "updated_at",
                 ],
             )
             // show active at the top
@@ -35,7 +35,7 @@ class Messages extends base.Base {
     };
 
     async remove (selector) {
-        return await this.dbh('messages')
+        return await this.dbh("messages")
             .where(selector)
             .del();
     };

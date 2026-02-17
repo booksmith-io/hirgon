@@ -1,110 +1,12 @@
-// hirgon
+// hirgon server
+// wrapper to run the app
 
-'use strict';
+"use strict";
 
-const version = '0.001';
+const version = "0.001";
 
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
-const logger = require('morgan');
-const config = require('./lib/config');
-const response = require('./lib/response');
-const session_util = require('./lib/session_util');
-
-const app = express();
-
-app.use(session(session_util.build_config(session, config)));
-
-app.disable('etag');
-app.disable('x-powered-by');
-
-app.set('view engine', 'ejs');
-app.set('views', path.resolve(__dirname, './views'));
-
-const routes = {
-    login: require('./routes/login'),
-    home: require('./routes/home'),
-    api: {
-        message: require('./routes/api/message'),
-    },
-    settings: require('./routes/settings'),
-    logout: require('./routes/logout'),
-};
-
-const model = {
-    systemdata: require('./models/systemdata'),
-};
-
-app.use(logger('combined'));
-app.use(express.static('public'));
-
-// add some request variables as local response variables so they
-// can be used in the templates.
-app.use(async (req, res, next) => {
-    res.locals.path = req.path;
-    res.locals.user = req.session.user;
-    res.locals.app = config.app;
-    if (req.url.includes('/api/')) {
-        res.locals.api = true;
-    }
-
-    const systemdata_obj = new model.systemdata.Systemdata();
-    const systemdata = await systemdata_obj.get_format_systemdata();
-    res.locals.systemdata = systemdata;
-    next();
-});
-
-// fix trailing slashes
-app.use((req, res, next) => {
-    const test = /\?[^]*\//.test(req.url);
-    if (req.url.substr(-1) === '/' && req.url.length > 1 && !test) {
-        res.redirect(301, req.url.slice(0, -1));
-        return;
-    } else {
-        next();
-    }
-});
-
-// check for user agents that we know we don't want accessing this
-app.use((req, res, next) => {
-    const user_agent = req.get('User-Agent');
-    for (let ua_string of config.user_agent_blocks) {
-        ua_string = ua_string.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
-        const ua_string_check = new RegExp(ua_string, 'i');
-        if (ua_string_check.test(user_agent)) {
-            res.status(response.status.HTTP_UNACCEPTABLE.code)
-                .header('Content-Type', 'text/plain')
-                .send(response.status.HTTP_UNACCEPTABLE.string);
-            return;
-        }
-    }
-    next();
-});
-
-app.use('/login', routes.login);
-app.use('/', routes.home);
-app.use('/api/message', routes.api.message);
-app.use('/settings', routes.settings);
-app.use('/logout', routes.logout);
-
-// default route response
-app.use((req, res) => {
-    // anything else not defined in the routes above are given a 404 not found
-    res.status(response.status.HTTP_NOT_FOUND.code)
-        .header('Content-Type', 'text/plain')
-        .send(response.status.HTTP_NOT_FOUND.string);
-    return;
-});
-
-// default route error handling
-app.use((err, req, res, next) => {
-    console.error(`[error] ${err.stack}`);
-    res.status(response.status.HTTP_INTERNAL_SERVER_ERROR.code)
-        .header('Content-Type', 'text/plain')
-        .send(response.status.HTTP_INTERNAL_SERVER_ERROR.string);
-    return;
-});
+const app = require("./app");
+const config = require("./lib/config");
 
 console.log(
     `[info] ${config.app.name} - version ${version}\n` +
@@ -117,7 +19,6 @@ app.listen(config.app.port, config.app.address, (error) => {
     }
 
     console.log(
-        '[info] server started\n' +
-            `[info] serving: ${config.app.address}:${config.app.port}`,
+        "[info] server started\n" + `[info] serving: ${config.app.address}:${config.app.port}`,
     );
 });
