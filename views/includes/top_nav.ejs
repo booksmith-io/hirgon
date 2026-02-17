@@ -20,6 +20,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <form id="add-message-form" method="POST" class="mb-1">
+                    <input type="hidden" name="_csrf" value="<%= csrf_token %>">
                     <input id="path" name="path" type="hidden" value="<%= path %>">
                     <div class="row mb-2">
                         <div class="col-12">
@@ -65,6 +66,7 @@
         <div class="modal-content">
             <div class="modal-body">
                 <form id="edit-message-form" method="POST" class="mb-1">
+                    <input type="hidden" name="_csrf" value="<%= csrf_token %>">
                     <input id="path" name="path" type="hidden" value="">
                     <input id="message_id" name="message_id" type="hidden" value="">
                     <div class="row mb-2">

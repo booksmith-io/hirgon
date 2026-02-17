@@ -20,7 +20,7 @@
                     <%_ if (message.active === 1) { _%>
                         <span class="badge">active</span>
                     <%_ } else if (message.scheduled_at) { _%>
-                        <span class="badge"><%- message.scheduled_at %></span>
+                        <span class="badge"><%= message.scheduled_at %></span>
                     <%_ } _%>
                     </span>
                 </div>

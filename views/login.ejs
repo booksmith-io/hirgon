@@ -6,6 +6,7 @@
         </div>
         <%- include('includes/alert') _%>
         <form action="/login" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrf_token %>">
             <div class="form-group form-floating">
                 <input id="email" type="email" name="email" placeholder="Email address" class="form-control">
                 <label for="email">Email address</label>
