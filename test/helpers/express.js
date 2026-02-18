@@ -50,18 +50,9 @@ function create_test_app () {
                 res.status(200)
                     .send("Login page rendered successfully");
             } else if (view.includes("settings")) {
-                if (locals && locals.alert && locals.alert.type === "danger") {
-                    if (locals.alert.message.includes("update")) {
-                        res.status(500)
-                            .send("Settings error rendered");
-                    } else {
-                        res.status(401)
-                            .send("Password error rendered");
-                    }
-                } else {
-                    res.status(200)
-                        .send("Settings page rendered successfully");
-                }
+                const status = res.statusCode || 200;
+                res.status(status)
+                    .send("Settings page rendered");
             } else if (view === "home") {
                 res.status(200)
                     .send("Home page rendered successfully");
