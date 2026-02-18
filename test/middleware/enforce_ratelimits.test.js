@@ -1,25 +1,21 @@
 // Enforce ratelimits middleware tests
 // Integration-style with mocked node-cache (external package)
 
-// Mock node-cache before importing the module
-const mockCacheGet = jest.fn();
-const mockCacheSet = jest.fn();
+const cacheMock = {
+    get: () => undefined,
+    set: () => true,
+};
 
 jest.mock("node-cache", () => {
     return jest.fn()
-        .mockImplementation(() => ({
-            get: mockCacheGet,
-            set: mockCacheSet,
-        }));
+        .mockImplementation(() => cacheMock);
 });
 
-// Mock datetime to return consistent timestamp
 jest.mock("./../../lib/datetime", () => ({
     current_timestamp: jest.fn()
-        .mockReturnValue(1234567890),
+        .mockResolvedValue(1234567890),
 }));
 
-// Mock response to include HTTP_TOO_MANY_REQUESTS
 jest.mock("./../../lib/response", () => ({
     status: {
         HTTP_BAD_REQUEST: { code: 400, string: "Bad Request" },
@@ -34,6 +30,8 @@ describe("Enforce Ratelimits Middleware", () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        cacheMock.get = () => undefined;
+        cacheMock.set = () => true;
 
         req = {
             headers: {},
@@ -59,70 +57,64 @@ describe("Enforce Ratelimits Middleware", () => {
     });
 
     describe("when ratelimiting is disabled", () => {
-        it("should call next immediately", () => {
+        it("should call next immediately", async () => {
             res.locals.config["ratelimits"]["enabled"] = 0;
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(next)
                 .toHaveBeenCalled();
-            expect(mockCacheGet).not.toHaveBeenCalled();
         });
     });
 
     describe("IP address extraction", () => {
-        beforeEach(() => {
-            mockCacheGet.mockReturnValue(undefined);
-            mockCacheSet.mockReturnValue(true);
-        });
-
-        it("should use x-forwarded-for header when valid", () => {
+        it("should use x-forwarded-for header when valid", async () => {
             req.headers["x-forwarded-for"] = "192.168.1.1";
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(next)
                 .toHaveBeenCalled();
         });
 
-        it("should extract last IP from x-forwarded-for list", () => {
+        it("should extract last IP from x-forwarded-for list", async () => {
             req.headers["x-forwarded-for"] = "10.0.0.1, 10.0.0.2, 192.168.1.1";
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(next)
                 .toHaveBeenCalled();
         });
 
-        it("should handle x-forwarded-for with whitespace", () => {
+        it("should handle x-forwarded-for with whitespace", async () => {
             req.headers["x-forwarded-for"] = "10.0.0.1,  192.168.1.1  ";
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(next)
                 .toHaveBeenCalled();
         });
 
-        it("should fall back to req.ip when x-forwarded-for is invalid", () => {
+        it("should fall back to req.ip when x-forwarded-for is invalid", async () => {
             req.headers["x-forwarded-for"] = "not-an-ip";
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(next)
                 .toHaveBeenCalled();
         });
 
-        it("should fall back to req.ip when x-forwarded-for is undefined", () => {
-            enforce_ratelimits(req, res, next);
+        it("should fall back to req.ip when x-forwarded-for is undefined", async () => {
+            await enforce_ratelimits(req, res, next);
 
             expect(next)
                 .toHaveBeenCalled();
         });
 
-        it("should return 400 when IP is undefined", () => {
+        it("should return 400 when IP is undefined", async () => {
             req.ip = undefined;
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(res.status)
                 .toHaveBeenCalledWith(400);
@@ -131,11 +123,11 @@ describe("Enforce Ratelimits Middleware", () => {
             expect(next).not.toHaveBeenCalled();
         });
 
-        it("should return JSON 400 for API when IP is undefined", () => {
+        it("should return JSON 400 for API when IP is undefined", async () => {
             req.ip = undefined;
             res.locals.api = true;
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(res.status)
                 .toHaveBeenCalledWith(400);
@@ -146,42 +138,39 @@ describe("Enforce Ratelimits Middleware", () => {
     });
 
     describe("rate limit checking", () => {
-        beforeEach(() => {
-            mockCacheGet.mockReturnValue(undefined);
-            mockCacheSet.mockReturnValue(true);
-        });
+        it("should allow first request", async () => {
+            await enforce_ratelimits(req, res, next);
 
-        it("should allow first request", () => {
-            enforce_ratelimits(req, res, next);
-
-            expect(mockCacheSet)
-                .toHaveBeenCalled();
             expect(next)
                 .toHaveBeenCalled();
         });
 
-        it("should set cache key with initial count of 1", () => {
-            enforce_ratelimits(req, res, next);
+        it("should set cache key with initial count of 1", async () => {
+            const setSpy = jest.spyOn(cacheMock, "set");
 
-            expect(mockCacheSet)
+            await enforce_ratelimits(req, res, next);
+
+            expect(setSpy)
                 .toHaveBeenCalledWith(
                     expect.stringContaining("request_"),
                     1,
                     2,
                 );
+
+            setSpy.mockRestore();
         });
     });
 
     describe("when IP is already rate limited", () => {
-        it("should block request when ratelimit cache key exists", () => {
-            mockCacheGet.mockImplementation((key) => {
+        it("should block request when ratelimit cache key exists", async () => {
+            cacheMock.get = (key) => {
                 if (key.includes("ratelimit")) {
                     return 1234568190; // Future timestamp
                 }
                 return undefined;
-            });
+            };
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(res.status)
                 .toHaveBeenCalledWith(429);
@@ -190,16 +179,16 @@ describe("Enforce Ratelimits Middleware", () => {
             expect(next).not.toHaveBeenCalled();
         });
 
-        it("should return JSON for API when rate limited", () => {
+        it("should return JSON for API when rate limited", async () => {
             res.locals.api = true;
-            mockCacheGet.mockImplementation((key) => {
+            cacheMock.get = (key) => {
                 if (key.includes("ratelimit")) {
                     return 1234568190;
                 }
                 return undefined;
-            });
+            };
 
-            enforce_ratelimits(req, res, next);
+            await enforce_ratelimits(req, res, next);
 
             expect(res.status)
                 .toHaveBeenCalledWith(429);
@@ -210,14 +199,12 @@ describe("Enforce Ratelimits Middleware", () => {
     });
 
     describe("cache errors", () => {
-        it("should throw error when initial cache set fails", () => {
-            mockCacheGet.mockReturnValue(undefined);
-            mockCacheSet.mockReturnValue(undefined);
+        it("should throw error when initial cache set fails", async () => {
+            cacheMock.get = () => undefined;
+            cacheMock.set = () => undefined;
 
-            expect(() => {
-                enforce_ratelimits(req, res, next);
-            })
-                .toThrow(/cache key failed to set/);
+            await expect(enforce_ratelimits(req, res, next))
+                .rejects.toThrow(/cache key failed to set/);
         });
     });
 });

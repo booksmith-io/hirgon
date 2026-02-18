@@ -5,7 +5,7 @@ const response = require("./../lib/response");
 const node_cache = require("node-cache");
 const cache = new node_cache();
 
-function enforce_ratelimits (req, res, next) {
+async function enforce_ratelimits (req, res, next) {
     if (res.locals.config["ratelimits"]["enabled"] === 1) {
         let ip_address = req.headers["x-forwarded-for"];
 
@@ -50,7 +50,7 @@ function enforce_ratelimits (req, res, next) {
             return;
         }
 
-        const current_timestamp = datetime.current_timestamp();
+        const current_timestamp = await datetime.current_timestamp();
 
         // first check if this IP is currently ratelimited.
         // this ratelimit naturally falls off once the TTL for the key is reached.
