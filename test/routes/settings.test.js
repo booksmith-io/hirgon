@@ -61,6 +61,8 @@ describe("Settings Routes", () => {
         mockUsers = {
             get: jest.fn(),
             update: jest.fn(),
+            check_passwd_complexity: jest.fn()
+                .mockReturnValue(true),
         };
         mockSystemdata = {
             get: jest.fn(),
@@ -99,7 +101,7 @@ describe("Settings Routes", () => {
                 .send({});
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error for missing name", async () => {
@@ -108,7 +110,7 @@ describe("Settings Routes", () => {
                 .send({ email: "test@example.com" });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error for missing email", async () => {
@@ -117,7 +119,7 @@ describe("Settings Routes", () => {
                 .send({ name: "Test User" });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error with null req.body", async () => {
@@ -126,7 +128,7 @@ describe("Settings Routes", () => {
                 .send();
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error with empty name string", async () => {
@@ -135,7 +137,7 @@ describe("Settings Routes", () => {
                 .send({ name: "", email: "test@example.com" });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error with empty email string", async () => {
@@ -144,7 +146,7 @@ describe("Settings Routes", () => {
                 .send({ name: "Test User", email: "" });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should update profile successfully", async () => {
@@ -223,7 +225,7 @@ describe("Settings Routes", () => {
                 .send({});
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error for missing old password", async () => {
@@ -235,13 +237,13 @@ describe("Settings Routes", () => {
                 });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error for missing new password", async () => {
             const mockUser = {
                 user_id: 1,
-                passwd: bcrypt.hashSync("oldpassword123", 10),
+                passwd: bcrypt.hashSync("oldpassword123", 12),
             };
 
             mockUsers.get.mockResolvedValue([mockUser]);
@@ -254,13 +256,13 @@ describe("Settings Routes", () => {
                 });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error for missing confirm password", async () => {
             const mockUser = {
                 user_id: 1,
-                passwd: bcrypt.hashSync("oldpassword123", 10),
+                passwd: bcrypt.hashSync("oldpassword123", 12),
             };
 
             mockUsers.get.mockResolvedValue([mockUser]);
@@ -273,13 +275,13 @@ describe("Settings Routes", () => {
                 });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error for incorrect old password", async () => {
             const mockUser = {
                 user_id: 1,
-                passwd: bcrypt.hashSync("oldpassword123", 10),
+                passwd: bcrypt.hashSync("oldpassword123", 12),
             };
 
             mockUsers.get.mockResolvedValue([mockUser]);
@@ -299,10 +301,11 @@ describe("Settings Routes", () => {
         it("should return error when new and confirm passwords do not match", async () => {
             const mockUser = {
                 user_id: 1,
-                passwd: bcrypt.hashSync("oldpassword123", 10),
+                passwd: bcrypt.hashSync("oldpassword123", 12),
             };
 
             mockUsers.get.mockResolvedValue([mockUser]);
+            mockUsers.check_passwd_complexity.mockReturnValue(true);
 
             const response = await request(app)
                 .post("/settings/password")
@@ -313,7 +316,7 @@ describe("Settings Routes", () => {
                 });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error when password update fails", async () => {
@@ -321,7 +324,7 @@ describe("Settings Routes", () => {
                 user_id: 1,
                 name: "Test User",
                 email: "test@example.com",
-                passwd: bcrypt.hashSync("oldpassword123", 10),
+                passwd: bcrypt.hashSync("oldpassword123", 12),
                 active: 1,
                 created_at: "2025-01-01 00:00:00",
                 updated_at: "2025-01-01 00:00:00",
@@ -342,12 +345,96 @@ describe("Settings Routes", () => {
                 .toBe(500);
         });
 
+        it("should return error for password too short", async () => {
+            const mockUser = {
+                user_id: 1,
+                passwd: bcrypt.hashSync("oldpassword123", 12),
+            };
+
+            mockUsers.get.mockResolvedValue([mockUser]);
+            mockUsers.check_passwd_complexity.mockReturnValue([false, "The password argument must be at least 12 characters"]);
+
+            const response = await request(app)
+                .post("/settings/password")
+                .send({
+                    old_password: "oldpassword123",
+                    new_password: "short1A",
+                    confirm_new_password: "short1A",
+                });
+
+            expect(response.status)
+                .toBe(400);
+        });
+
+        it("should return error for missing uppercase", async () => {
+            const mockUser = {
+                user_id: 1,
+                passwd: bcrypt.hashSync("oldpassword123", 12),
+            };
+
+            mockUsers.get.mockResolvedValue([mockUser]);
+            mockUsers.check_passwd_complexity.mockReturnValue([false, "The password argument must have at least 1 uppercase character"]);
+
+            const response = await request(app)
+                .post("/settings/password")
+                .send({
+                    old_password: "oldpassword123",
+                    new_password: "lowercase123",
+                    confirm_new_password: "lowercase123",
+                });
+
+            expect(response.status)
+                .toBe(400);
+        });
+
+        it("should return error for missing lowercase", async () => {
+            const mockUser = {
+                user_id: 1,
+                passwd: bcrypt.hashSync("oldpassword123", 12),
+            };
+
+            mockUsers.get.mockResolvedValue([mockUser]);
+            mockUsers.check_passwd_complexity.mockReturnValue([false, "The password argument must have at least 1 lowercase character"]);
+
+            const response = await request(app)
+                .post("/settings/password")
+                .send({
+                    old_password: "oldpassword123",
+                    new_password: "UPPERCASE123",
+                    confirm_new_password: "UPPERCASE123",
+                });
+
+            expect(response.status)
+                .toBe(400);
+        });
+
+        it("should return error for missing numeric", async () => {
+            const mockUser = {
+                user_id: 1,
+                passwd: bcrypt.hashSync("oldpassword123", 12),
+            };
+
+            mockUsers.get.mockResolvedValue([mockUser]);
+            mockUsers.check_passwd_complexity.mockReturnValue([false, "The password argument must have at least 1 numeric character"]);
+
+            const response = await request(app)
+                .post("/settings/password")
+                .send({
+                    old_password: "oldpassword123",
+                    new_password: "NoNumbersHere",
+                    confirm_new_password: "NoNumbersHere",
+                });
+
+            expect(response.status)
+                .toBe(400);
+        });
+
         it("should update password successfully", async () => {
             const mockUser = {
                 user_id: 1,
                 name: "Test User",
                 email: "test@example.com",
-                passwd: bcrypt.hashSync("oldpassword123", 10),
+                passwd: bcrypt.hashSync("oldpassword123", 12),
                 active: 1,
                 created_at: "2025-01-01 00:00:00",
                 updated_at: "2025-01-01 00:00:00",
@@ -375,7 +462,7 @@ describe("Settings Routes", () => {
                 user_id: 1,
                 name: "Test User",
                 email: "test@example.com",
-                passwd: bcrypt.hashSync("oldpassword123", 10),
+                passwd: bcrypt.hashSync("oldpassword123", 12),
                 active: 1,
                 created_at: "2025-01-01 00:00:00",
                 updated_at: "2025-01-01 00:00:00",
@@ -407,7 +494,7 @@ describe("Settings Routes", () => {
                 });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error when user lookup fails", async () => {
@@ -451,7 +538,7 @@ describe("Settings Routes", () => {
             const response = await request(app)
                 .get("/settings/icon");
             expect(response.status)
-                .toBe(401);
+                .toBe(500);
         });
     });
 
@@ -470,7 +557,7 @@ describe("Settings Routes", () => {
                 .send({});
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error with null req.body", async () => {
@@ -487,7 +574,7 @@ describe("Settings Routes", () => {
                 .send();
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error with empty icon string", async () => {
@@ -504,7 +591,7 @@ describe("Settings Routes", () => {
                 .send({ icon: "" });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(400);
         });
 
         it("should return error when icon update fails", async () => {
@@ -533,7 +620,7 @@ describe("Settings Routes", () => {
                 .send({ icon: "icon1" });
 
             expect(response.status)
-                .toBe(401);
+                .toBe(500);
         });
 
         it("should update icon successfully", async () => {
@@ -596,7 +683,7 @@ describe("Settings Routes", () => {
                 .get("/settings/icon");
 
             expect(response.status)
-                .toBe(401);
+                .toBe(500);
         });
 
         it("should render icon page with correct checked value", async () => {

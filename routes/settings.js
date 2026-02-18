@@ -115,9 +115,22 @@ router.post("/password", secure.requireAuth, async (req, res) => {
         return;
     }
 
-    const new_passwd_hash = bcrypt.hashSync(req.body.new_password, 12);
+    // check password complexity BEFORE hashing
+    const complexity_check = users_obj.check_passwd_complexity(req.body.new_password);
+    if (complexity_check !== true) {
+        res.status(response.status.HTTP_BAD_REQUEST.code)
+            .render("settings/password", {
+                layout: false,
+                alert: {
+                    type: "danger",
+                    message: complexity_check[1],
+                },
+            });
+        return;
+    }
 
     // check that the new and confirm passwords match
+    const new_passwd_hash = bcrypt.hashSync(req.body.new_password, 12);
     if (!bcrypt.compareSync(req.body.confirm_new_password, new_passwd_hash)) {
         res.status(response.status.HTTP_BAD_REQUEST.code)
             .render("settings/password", {
