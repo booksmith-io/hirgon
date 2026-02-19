@@ -61,7 +61,7 @@ describe("Response Utils", () => {
             expect(response.status.HTTP_UNACCEPTABLE.code)
                 .toBe(406);
             expect(response.status.HTTP_UNACCEPTABLE.string)
-                .toBe("Fuck you");
+                .toBe("Earl of Lemongrab");
 
             expect(response.status.HTTP_CONFLICT.code)
                 .toBe(409);
