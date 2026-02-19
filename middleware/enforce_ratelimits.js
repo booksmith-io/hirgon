@@ -10,7 +10,7 @@ async function enforce_ratelimits (req, res, next) {
         let ip_address = req.headers["x-forwarded-for"];
 
         // x-forwarded-for can be spoofed, but lucky for us, the webserver
-        // (at least apache as its configured on spicyipsum.com's host)
+        // (at least apache as its configured on the host running this)
         // puts the the real IP at the last of the string.  so we just need
         // to split and trim and should be able to not worry about a spoofed
         // IP addresses here.

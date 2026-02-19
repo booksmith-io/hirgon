@@ -117,7 +117,7 @@ WorkingDirectory=/home/hirgon/git/hirgon/
 Restart=always
 
 StandardError=syslog
-SyslogIdentifier=spicyipsum
+SyslogIdentifier=hirgon
 
 Type=simple
 User=hirgon
