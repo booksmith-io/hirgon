@@ -1,0 +1,145 @@
+name: docker build test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: set up Docker Compose
+        run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: validate YAML syntax
+        run: |
+          ruby -ryaml -e "Dir.glob('.github/workflows/*.yml').each { |f| YAML.load_file(f) }" && echo "YAML is valid"
+
+      - name: build and start dev container
+        run: |
+          docker-compose -f docker-compose.dev.yml build
+          docker-compose -f docker-compose.dev.yml up -d
+
+      - name: wait for dev server
+        run: |
+          for i in {1..30}; do
+            if docker-compose -f docker-compose.dev.yml logs hirgon | grep -q "server started"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: dev health check
+        run: curl -f http://localhost:5000/login
+
+      - name: create dev test user
+        id: create-dev-user
+        run: |
+          DEV_USER_EMAIL="dev-$(date +%s)@test.com"
+          docker-compose -f docker-compose.dev.yml exec -T hirgon node bin/add_user \
+            -n "Dev Test" \
+            -e "$DEV_USER_EMAIL" \
+            -p "testpass123"
+          echo "dev_user_email=$DEV_USER_EMAIL" >> $GITHUB_OUTPUT
+
+      - name: dev auth flow test
+        run: |
+          DEV_USER_EMAIL="${{ steps.create-dev-user.outputs.dev_user_email }}"
+          
+          LOGIN_PAGE=$(curl -s -c /tmp/cookies-dev.txt http://localhost:5000/login)
+          CSRF_TOKEN=$(echo "$LOGIN_PAGE" | grep -oP 'name="_csrf"\s+value="\K[^"]+' || true)
+          
+          if [ -z "$CSRF_TOKEN" ]; then
+            echo "failed to extract CSRF token"
+            exit 1
+          fi
+          
+          HTTP_CODE=$(curl -s -w "%{http_code}" -o /tmp/dev-login-response.html \
+            -b /tmp/cookies-dev.txt -c /tmp/cookies-dev.txt \
+            -X POST http://localhost:5000/login \
+            -d "email=$DEV_USER_EMAIL" \
+            -d "password=testpass123" \
+            -d "_csrf=$CSRF_TOKEN")
+          
+          if [ "$HTTP_CODE" != "302" ]; then
+            echo "expected 302 redirect, got $HTTP_CODE"
+            exit 1
+          fi
+          
+          HOME_RESPONSE=$(curl -s -b /tmp/cookies-dev.txt http://localhost:5000/)
+          if ! echo "$HOME_RESPONSE" | grep -q "id=\"home\""; then
+            echo "authenticated user content not found on home page"
+            exit 1
+          fi
+
+      - name: cleanup dev container
+        run: docker-compose -f docker-compose.dev.yml down
+
+      - name: build and start prod container
+        run: |
+          docker-compose -f docker-compose.prod.yml build
+          docker-compose -f docker-compose.prod.yml up -d
+
+      - name: wait for prod server
+        run: |
+          for i in {1..30}; do
+            if docker-compose -f docker-compose.prod.yml logs hirgon | grep -q "server started"; then
+              exit 0
+            fi
+            sleep 1
+          done
+          exit 1
+
+      - name: prod health check
+        run: curl -f http://localhost:5000/login
+
+      - name: create prod test user
+        id: create-prod-user
+        run: |
+          PROD_USER_EMAIL="prod-$(date +%s)@test.com"
+          docker-compose -f docker-compose.prod.yml exec -T hirgon node bin/add_user \
+            -n "Prod Test" \
+            -e "$PROD_USER_EMAIL" \
+            -p "testpass123"
+          echo "prod_user_email=$PROD_USER_EMAIL" >> $GITHUB_OUTPUT
+
+      - name: prod auth flow test
+        run: |
+          PROD_USER_EMAIL="${{ steps.create-prod-user.outputs.prod_user_email }}"
+          
+          LOGIN_PAGE=$(curl -s -c /tmp/cookies-prod.txt http://localhost:5000/login)
+          CSRF_TOKEN=$(echo "$LOGIN_PAGE" | grep -oP 'name="_csrf"\s+value="\K[^"]+' || true)
+          
+          if [ -z "$CSRF_TOKEN" ]; then
+            echo "Failed to extract CSRF token"
+            exit 1
+          fi
+          
+          HTTP_CODE=$(curl -s -w "%{http_code}" -o /tmp/prod-login-response.html \
+            -b /tmp/cookies-prod.txt -c /tmp/cookies-prod.txt \
+            -X POST http://localhost:5000/login \
+            -d "email=$PROD_USER_EMAIL" \
+            -d "password=testpass123" \
+            -d "_csrf=$CSRF_TOKEN")
+          
+          if [ "$HTTP_CODE" != "302" ]; then
+            echo "expected 302 redirect, got $HTTP_CODE"
+            exit 1
+          fi
+          
+          HOME_RESPONSE=$(curl -s -b /tmp/cookies-prod.txt http://localhost:5000/)
+          if ! echo "$HOME_RESPONSE" | grep -q "id=\"home\""; then
+            echo "authenticated user content not found on home page"
+            exit 1
+          fi
+
+      - name: Cleanup prod container
+        run: docker-compose -f docker-compose.prod.yml down
