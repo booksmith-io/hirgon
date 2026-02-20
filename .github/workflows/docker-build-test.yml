@@ -83,6 +83,9 @@ jobs:
       - name: cleanup dev container
         run: docker-compose -f docker-compose.dev.yml down
 
+      - name: Setup prod config
+        run: cp -a .hirgonrc.example .hirgonrc
+
       - name: build and start prod container
         run: |
           docker-compose -f docker-compose.prod.yml build

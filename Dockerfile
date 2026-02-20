@@ -16,9 +16,6 @@ COPY . .
 # install sqlite3 CLI for database patches
 RUN apt-get update && apt-get install -y sqlite3 && rm -rf /var/lib/apt/lists/*
 
-# setup .hirgonrc if it doesn't already exist
-RUN test -f /app/.hirgonrc || cp /app/.hirgonrc.example /app/.hirgonrc
-
 # generate session secret for production
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/* && \
     cp -a .hirgonrc.example .hirgonrc && \
