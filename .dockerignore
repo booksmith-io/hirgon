@@ -1,0 +1,11 @@
+node_modules
+db/*.sqlite3
+db/*.sqlite3-*
+data
+*.log
+.env
+.git
+.gitignore
+README.md
+tmp
+*.md

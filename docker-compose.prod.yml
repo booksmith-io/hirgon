@@ -1,0 +1,15 @@
+services:
+  hirgon:
+    image: booksmith-hirgon
+    build: .
+    ports:
+      - "${APP_PORT:-5000}:5000"
+    volumes:
+      - ./.hirgonrc:/app/.hirgonrc:ro
+      - hirgon_data:/app/db
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+    restart: unless-stopped
+
+volumes:
+  hirgon_data:

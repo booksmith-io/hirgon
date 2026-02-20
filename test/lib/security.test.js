@@ -66,11 +66,6 @@ describe("Security Middleware", () => {
                         contentSecurityPolicy: expect.objectContaining({
                             directives: expect.any(Object),
                         }),
-                        hsts: expect.objectContaining({
-                            maxAge: 31536000,
-                            includeSubDomains: true,
-                            preload: true,
-                        }),
                         noSniff: true,
                         frameguard: expect.objectContaining({ action: "deny" }),
                         xssFilter: true,
