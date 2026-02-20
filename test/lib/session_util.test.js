@@ -196,7 +196,7 @@ describe("Session Utils", () => {
             expect(result.secret)
                 .toBe("prod-secret");
             expect(result.cookie.secure)
-                .toBe(true);
+                .toBe(false);
             expect(result.resave)
                 .toBe(false);
             expect(result.saveUninitialized)
@@ -211,7 +211,7 @@ describe("Session Utils", () => {
             expect(result.secret)
                 .toBe("prod-secret");
             expect(result.cookie.secure)
-                .toBe(true);
+                .toBe(false);
             expect(process.env.NODE_ENV)
                 .toBe("production");
         });

@@ -1,9 +1,11 @@
 // Configuration loader tests
 
 const mockReadFileSync = jest.fn();
+const mockExistsSync = jest.fn();
 
 jest.mock("fs", () => ({
     readFileSync: mockReadFileSync,
+    existsSync: mockExistsSync,
 }));
 
 jest.mock("path", () => ({
@@ -18,6 +20,7 @@ describe("Config Module", () => {
         jest.clearAllMocks();
         jest.resetModules();
         originalEnv = process.env.NODE_ENV;
+        mockExistsSync.mockReturnValue(false);
     });
 
     afterEach(() => {
