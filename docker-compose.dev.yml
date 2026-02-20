@@ -1,0 +1,20 @@
+services:
+  hirgon:
+    image: booksmith-hirgon
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./routes:/app/routes:delegated
+      - ./lib:/app/lib:delegated
+      - ./middleware:/app/middleware:delegated
+      - ./models:/app/models:delegated
+      - ./views:/app/views:delegated
+      - ./public:/app/public:delegated
+      - ./db:/app/db:delegated
+      - ./app.js:/app/app.js:delegated
+      - ./server.js:/app/server.js:delegated
+    environment:
+      - NODE_ENV=development
+    command: npm run development
+    working_dir: /app
